@@ -29,9 +29,8 @@ renderElement(tripInformationElement, createTripPriceTemplate(), `beforeEnd`);
 // Рендер меню
 
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
-const tripMenuTitle = tripControlsElement.querySelector(`.trip-controls h2`);
 
-renderElement(tripMenuTitle, createSiteMenuTemplate(), `afterEnd`);
+renderElement(tripControlsElement, createSiteMenuTemplate(), `beforeEnd`);
 
 // Рендер фильтра
 
