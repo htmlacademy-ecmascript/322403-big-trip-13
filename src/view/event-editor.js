@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {EVENT_TYPES, EVENT_CITIES} from "../const";
+import {createElement} from "../utils";
 
 const createEventEditorTemplate = (tripEvent, optionsList) => {
   const {type, price, options, time, destination} = tripEvent;
@@ -136,4 +137,28 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
             </li>`;
 };
 
-export {createEventEditorTemplate};
+class EventEditorView {
+  constructor(tripEvent, optionsList) {
+    this._tripEvent = tripEvent;
+    this._optionsList = optionsList;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventEditorTemplate(this._tripEvent, this._optionsList);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
+export {EventEditorView};
