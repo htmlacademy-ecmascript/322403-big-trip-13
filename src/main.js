@@ -4,7 +4,6 @@ import {SiteMenuView} from "./view/site-menu";
 import {FiltersView} from "./view/filters";
 import {SortingView} from "./view/sorting";
 import {EventsListView} from "./view/events-list";
-import {NewEventCreatorView} from "./view/new-event-creator";
 import {EventEditorView} from "./view/event-editor";
 import {TripEventView} from "./view/trip-event";
 import {generateTripEvent} from "./mock/trip-event";
@@ -55,10 +54,6 @@ renderElement(tripsEventsElement, new SortingView().getElement(), RenderPosition
 const eventListComponent = new EventsListView();
 
 renderElement(tripsEventsElement, eventListComponent.getElement(), RenderPosition.BEFOREEND);
-
-// Рендер элемента для создания точек маршрута
-
-renderElement(eventListComponent.getElement(), new NewEventCreatorView().getElement(), RenderPosition.BEFOREEND);
 
 // Рендер точек маршрута
 
