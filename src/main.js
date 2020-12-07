@@ -10,7 +10,7 @@ import {NoEvent} from "./view/no-event";
 import {generateTripEvent} from "./mock/trip-event";
 import {generateOptions} from "./mock/event-options";
 import {calculateRouteDetails} from "./route";
-import {renderElement, RenderPosition} from "./utils";
+import {RenderPosition, renderElement, replace} from "./utils/render";
 
 const EVENT_COUNT = 20;
 
@@ -26,16 +26,16 @@ const tripsEventsElement = document.querySelector(`.trip-events`);
 
 // Рендер меню
 
-renderElement(tripControlsElement, new SiteMenuView().getElement(), RenderPosition.BEFOREEND);
+renderElement(tripControlsElement, new SiteMenuView(), RenderPosition.BEFOREEND);
 
 // Рендер фильтра
 
-renderElement(tripControlsElement, new FiltersView().getElement(), RenderPosition.BEFOREEND);
+renderElement(tripControlsElement, new FiltersView(), RenderPosition.BEFOREEND);
 
 const renderTrip = (events) => {
 
   if (events.length === 0) {
-    renderElement(tripsEventsElement, new NoEvent().getElement(), RenderPosition.BEFOREEND);
+    renderElement(tripsEventsElement, new NoEvent(), RenderPosition.BEFOREEND);
     return;
   }
 
@@ -45,21 +45,21 @@ const renderTrip = (events) => {
 
   const tripInformationComponent = new TripInformationView(routeDetails);
 
-  renderElement(tripMainElement, tripInformationComponent.getElement(), RenderPosition.AFTERBEGIN);
+  renderElement(tripMainElement, tripInformationComponent, RenderPosition.AFTERBEGIN);
 
   // Рендер цены
 
-  renderElement(tripInformationComponent.getElement(), new TripPriceView(routeDetails).getElement(), RenderPosition.BEFOREEND);
+  renderElement(tripInformationComponent, new TripPriceView(routeDetails), RenderPosition.BEFOREEND);
 
   // Рендер сортировки
 
-  renderElement(tripsEventsElement, new SortingView().getElement(), RenderPosition.BEFOREEND);
+  renderElement(tripsEventsElement, new SortingView(), RenderPosition.BEFOREEND);
 
   // Рендер списка событий
 
   const eventListComponent = new EventsListView();
 
-  renderElement(tripsEventsElement, eventListComponent.getElement(), RenderPosition.BEFOREEND);
+  renderElement(tripsEventsElement, eventListComponent, RenderPosition.BEFOREEND);
 
   // Рендер точек маршрута
 
@@ -68,11 +68,11 @@ const renderTrip = (events) => {
     const eventEditorComponent = new EventEditorView(tripEvent, eventOptions);
 
     const replaceCardToForm = () => {
-      eventListElement.replaceChild(eventEditorComponent.getElement(), tripEventComponent.getElement());
+      replace(eventEditorComponent, tripEventComponent);
     };
 
     const replaceFormToCard = () => {
-      eventListElement.replaceChild(tripEventComponent.getElement(), eventEditorComponent.getElement());
+      replace(tripEventComponent, eventEditorComponent);
     };
 
     const onEscKeyDown = (evt) => {
@@ -83,39 +83,22 @@ const renderTrip = (events) => {
       }
     };
 
-    const onTripEventRollDownButtonClick = () => {
+    tripEventComponent.setRollDownHandler(() => {
       replaceCardToForm();
       document.addEventListener(`keydown`, onEscKeyDown);
-    };
+    });
 
-    tripEventComponent
-      .getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onTripEventRollDownButtonClick);
-
-    const onEventEditorRollUpButtonClick = (evt) => {
-      evt.preventDefault();
+    eventEditorComponent.setRollUpHandler(() => {
       replaceFormToCard();
       document.removeEventListener(`keydown`, onEscKeyDown);
-    };
+    });
 
-    eventEditorComponent
-      .getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventEditorRollUpButtonClick);
-
-    const onEventEditorSubmit = (evt) => {
-      evt.preventDefault();
+    eventEditorComponent.setSubmitFormHandler(() => {
       replaceFormToCard();
       document.removeEventListener(`keydown`, onEscKeyDown);
-    };
+    });
 
-    eventEditorComponent
-      .getElement()
-      .querySelector(`.event--edit`)
-      .addEventListener(`submit`, onEventEditorSubmit);
-
-    renderElement(eventListElement, tripEventComponent.getElement(), RenderPosition.BEFOREEND);
+    renderElement(eventListElement, tripEventComponent, RenderPosition.BEFOREEND);
   };
 
   for (let i = 0; i < EVENT_COUNT; i++) {
