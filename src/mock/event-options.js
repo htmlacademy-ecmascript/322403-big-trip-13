@@ -1,5 +1,5 @@
 import {OPTION_NAMES, EVENT_TYPES} from "../const";
-import {getRandomInteger, getRandomItemsFromArray} from "../utils";
+import {getRandomInteger, getRandomItemsFromArray} from "../utils/common";
 
 const generateOptions = () => {
   let result = [];

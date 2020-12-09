@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils.js";
+import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils/common";
 import {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION} from "../const";
 
 const generatePhotos = () => {

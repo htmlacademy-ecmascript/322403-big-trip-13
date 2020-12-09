@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import {EVENT_TYPES, EVENT_CITIES} from "../const";
-import {createElement} from "../utils";
+import {AbstractView} from "./abstract";
 
 const createEventEditorTemplate = (tripEvent, optionsList) => {
   const {type, price, options, time, destination} = tripEvent;
@@ -137,27 +137,37 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
             </li>`;
 };
 
-class EventEditorView {
+class EventEditorView extends AbstractView {
   constructor(tripEvent, optionsList) {
+    super();
     this._tripEvent = tripEvent;
     this._optionsList = optionsList;
-    this._element = null;
+    this._rollUpHandler = this._rollUpHandler.bind(this);
+    this._submitFormHandler = this._submitFormHandler.bind(this);
   }
 
   getTemplate() {
     return createEventEditorTemplate(this._tripEvent, this._optionsList);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _rollUpHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollUp();
   }
 
-  removeElement() {
-    this._element = null;
+  setRollUpHandler(callback) {
+    this._callback.rollUp = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
+  }
+
+  _submitFormHandler(evt) {
+    evt.preventDefault();
+    this._callback.submitForm();
+  }
+
+  setSubmitFormHandler(callback) {
+    this._callback.submitForm = callback;
+    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
   }
 }
 
