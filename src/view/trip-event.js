@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {AbstractView} from "./abstract";
+import {AbstractView} from "./abstract.js";
 
 const createTripEventTemplate = (tripEvent) => {
   const {type, price, options, time, isFavorite} = tripEvent;
@@ -100,6 +100,7 @@ class TripEventView extends AbstractView {
     super();
     this._tripEvent = tripEvent;
     this._rollDownHandler = this._rollDownHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -111,9 +112,19 @@ class TripEventView extends AbstractView {
     this._callback.rollDown();
   }
 
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
   setRollDownHandler(callback) {
     this._callback.rollDown = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollDownHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }
 

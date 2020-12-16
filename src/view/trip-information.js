@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {AbstractView} from "./abstract";
+import {AbstractView} from "./abstract.js";
 
 const createTripInformationTemplate = (routeDetails) => {
   const {cities, dates} = routeDetails;

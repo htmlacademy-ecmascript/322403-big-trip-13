@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract";
+import {AbstractView} from "./abstract.js";
 
 const createTripPriceTemplate = (routeDetails) => {
   return `<p class="trip-info__cost">

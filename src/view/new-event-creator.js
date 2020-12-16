@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract";
+import {AbstractView} from "./abstract.js";
 
 const createNewEventCreatorTemplate = () => {
   return `<li class="trip-events__item">

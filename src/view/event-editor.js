@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import {EVENT_TYPES, EVENT_CITIES} from "../const";
-import {AbstractView} from "./abstract";
+import {EVENT_TYPES, EVENT_CITIES} from "../const.js";
+import {AbstractView} from "./abstract.js";
 
 const createEventEditorTemplate = (tripEvent, optionsList) => {
   const {type, price, options, time, destination} = tripEvent;
