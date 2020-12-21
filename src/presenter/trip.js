@@ -4,10 +4,14 @@ import {SortingView} from "../view/sorting.js";
 import {TripEventPresenter} from "./trip-event.js";
 import {renderElement, RenderPosition} from "../utils/render.js";
 import {updateItem} from "../utils/common.js";
+import {calculateRouteDetails} from "../route.js";
+import {TripInformationView} from "../view/trip-information";
+import {TripPriceView} from "../view/trip-price";
 
 class TripPresenter {
-  constructor(tripContainer) {
+  constructor(tripContainer, tripDetailsContainer) {
     this._tripContainer = tripContainer;
+    this._tripDetailsContainer = tripDetailsContainer;
     this._tripEventPresenter = {};
 
     this._eventsListComponent = new EventsListView();
@@ -21,6 +25,7 @@ class TripPresenter {
   init(tripEvents, eventOptions) {
     this._tripEvents = tripEvents.slice();
     this._eventOptions = eventOptions.slice();
+    this._routeDetails = calculateRouteDetails(this._tripEvents);
 
     this._renderTrip();
   }
@@ -40,6 +45,16 @@ class TripPresenter {
 
   _renderEventsList() {
     renderElement(this._tripContainer, this._eventsListComponent, RenderPosition.BEFOREEND);
+  }
+
+  _renderTripInformation() {
+    this._tripInformationComponent = new TripInformationView(this._routeDetails);
+    renderElement(this._tripDetailsContainer, this._tripInformationComponent, RenderPosition.AFTERBEGIN);
+  }
+
+  _renderTripPrice() {
+    this._tripPriceComponent = new TripPriceView(this._routeDetails);
+    renderElement(this._tripInformationComponent, this._tripPriceComponent, RenderPosition.BEFOREEND);
   }
 
   _renderTripEvent(tripEvent, eventOptions) {
@@ -74,6 +89,11 @@ class TripPresenter {
     // Рендер точек маршрута
 
     this._renderTripEvents();
+
+    // Рендер деталей путешествия
+
+    this._renderTripInformation();
+    this._renderTripPrice();
   }
 }
 
