@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils/common";
-import {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION} from "../const";
+import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils/common.js";
+import {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION} from "../const.js";
 
 const generatePhotos = () => {
   const getPhoto = () => `http://picsum.photos/248/152?r=${Math.random()}`;
@@ -20,6 +20,7 @@ const generateDate = () => {
     .toDate();
 };
 
+const generateId = () => Date.now() + (Math.random() * 10000);
 
 const generateTripEvent = (options) => {
   const type = getRandomItemFromArray(EVENT_TYPES);
@@ -29,6 +30,7 @@ const generateTripEvent = (options) => {
   };
 
   return {
+    id: generateId(),
     type,
     price: getRandomInteger(50, 500),
     destination: {
