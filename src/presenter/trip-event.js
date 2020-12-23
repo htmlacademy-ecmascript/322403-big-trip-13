@@ -62,6 +62,11 @@ class TripEventPresenter {
     }
   }
 
+  delete() {
+    remove(this._tripEventComponent);
+    remove(this._eventEditorComponent);
+  }
+
   _replaceCardToForm() {
     replace(this._eventEditorComponent, this._tripEventComponent);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
