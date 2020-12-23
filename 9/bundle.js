@@ -431,8 +431,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_common_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/common.js */ "./src/utils/common.js");
 /* harmony import */ var _route_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../route.js */ "./src/route.js");
 /* harmony import */ var _utils_sort_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/sort.js */ "./src/utils/sort.js");
-/* harmony import */ var _view_trip_information__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../view/trip-information */ "./src/view/trip-information.js");
-/* harmony import */ var _view_trip_price__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../view/trip-price */ "./src/view/trip-price.js");
+/* harmony import */ var _view_trip_information_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../view/trip-information.js */ "./src/view/trip-information.js");
+/* harmony import */ var _view_trip_price_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../view/trip-price.js */ "./src/view/trip-price.js");
 
 
 
@@ -513,12 +513,12 @@ class TripPresenter {
   }
 
   _renderTripInformation() {
-    this._tripInformationComponent = new _view_trip_information__WEBPACK_IMPORTED_MODULE_8__["TripInformationView"](this._routeDetails);
+    this._tripInformationComponent = new _view_trip_information_js__WEBPACK_IMPORTED_MODULE_8__["TripInformationView"](this._routeDetails);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["renderElement"])(this._tripDetailsContainer, this._tripInformationComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].AFTERBEGIN);
   }
 
   _renderTripPrice() {
-    this._tripPriceComponent = new _view_trip_price__WEBPACK_IMPORTED_MODULE_9__["TripPriceView"](this._routeDetails);
+    this._tripPriceComponent = new _view_trip_price_js__WEBPACK_IMPORTED_MODULE_9__["TripPriceView"](this._routeDetails);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["renderElement"])(this._tripInformationComponent, this._tripPriceComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
   }
 
