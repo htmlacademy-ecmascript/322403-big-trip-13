@@ -3,14 +3,17 @@ import {FiltersView} from "./view/filters.js";
 import {TripPresenter} from "./presenter/trip.js";
 import {generateTripEvent} from "./mock/trip-event.js";
 import {generateOptions} from "./mock/event-options.js";
+import {generateDestinationsList} from "./mock/destinations.js";
 import {RenderPosition, renderElement} from "./utils/render.js";
 
 const EVENT_COUNT = 20;
 
 const eventOptions = generateOptions();
+const destinationsList = generateDestinationsList();
+
 const tripEvents = new Array(EVENT_COUNT)
   .fill()
-  .map(() => generateTripEvent(eventOptions))
+  .map(() => generateTripEvent(eventOptions, destinationsList))
   .sort((a, b) => a.time.start - b.time.start);
 
 const tripMainElement = document.querySelector(`.trip-main`);
@@ -29,4 +32,4 @@ renderElement(tripControlsElement, new FiltersView(), RenderPosition.BEFOREEND);
 
 // Рендер маршрута
 
-tripPresenter.init(tripEvents, eventOptions);
+tripPresenter.init(tripEvents, eventOptions, destinationsList);

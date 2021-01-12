@@ -25,10 +25,11 @@ class TripPresenter {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-  init(tripEvents, eventOptions) {
+  init(tripEvents, eventOptions, destinationsList) {
     this._tripEvents = tripEvents.slice();
     this._sourcedTripEvents = tripEvents.slice();
     this._eventOptions = eventOptions.slice();
+    this._destinationsList = destinationsList.slice();
     this._routeDetails = calculateRouteDetails(this._tripEvents);
 
     this._renderTrip();
@@ -36,7 +37,7 @@ class TripPresenter {
 
   _handleTripEventChange(updatedTripEvent) {
     this._tripEvents = updateItem(this._tripEvents, updatedTripEvent);
-    this._tripEventPresenter[updatedTripEvent.id].init(updatedTripEvent, this._eventOptions);
+    this._tripEventPresenter[updatedTripEvent.id].init(updatedTripEvent, this._eventOptions, this._destinationsList);
   }
 
   _handleModeChange() {
@@ -87,15 +88,15 @@ class TripPresenter {
     renderElement(this._tripInformationComponent, this._tripPriceComponent, RenderPosition.BEFOREEND);
   }
 
-  _renderTripEvent(tripEvent, eventOptions) {
+  _renderTripEvent(tripEvent, eventOptions, destinationsList) {
     const tripEventPresenter = new TripEventPresenter(this._eventsListComponent, this._handleTripEventChange, this._handleModeChange);
-    tripEventPresenter.init(tripEvent, eventOptions);
+    tripEventPresenter.init(tripEvent, eventOptions, destinationsList);
     this._tripEventPresenter[tripEvent.id] = tripEventPresenter;
   }
 
   _renderTripEvents() {
     this._tripEvents
-      .forEach((tripEvent) => this._renderTripEvent(tripEvent, this._eventOptions));
+      .forEach((tripEvent) => this._renderTripEvent(tripEvent, this._eventOptions, this._destinationsList));
   }
 
   _deleteTripEvents() {
