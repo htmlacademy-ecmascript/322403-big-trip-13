@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
-import {EVENT_TYPES, EVENT_CITIES} from "../const.js";
-import {AbstractView} from "./abstract.js";
+import {EVENT_TYPES} from "../const.js";
+import {SmartView} from "./smart.js";
 
-const createEventEditorTemplate = (tripEvent, optionsList) => {
-  const {type, price, options, time, destination} = tripEvent;
+const createEventEditorTemplate = (data, optionsList, destinationsList) => {
+  const {type, price, options, time, destination} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -36,17 +36,17 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
       return editingEventOptions.includes(currentEventOption) ? `checked` : ``;
     };
 
-    for (const option of optionsList.filter((optionItem) => optionItem.type === type)) {
+    for (const option of optionsList.filter((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase())) {
       eventOptionsList += `
         <div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden"
-          id="event-${option.name.toLowerCase().replace(` `, `-`)}-2"
+          id="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
-          name="event-${option.name.toLowerCase().replace(` `, `-`)}"
+          name="event-${option.name.toLowerCase().replaceAll(` `, `-`)}"
           ${isChecked(option)}>
           <label
           class="event__offer-label"
-          for="event-${option.name.toLowerCase().replace(` `, `-`)}-2">
+          for="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2">
             <span class="event__offer-title">${option.name}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${option.price}</span>
@@ -57,13 +57,30 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
     return eventOptionsList;
   };
 
-  const createDestinationList = () => {
+  const createCitiesList = () => {
     let cities = ``;
-    for (const city of EVENT_CITIES) {
+    for (const city of destinationsList.map((x) => x.city)) {
       cities += `<option value="${city}"></option>`;
     }
 
     return cities;
+  };
+
+  const createPhotosTape = () => {
+    if (!destination.photos) {
+      return ``;
+    }
+
+    let photos = ``;
+    for (const photo of destination.photos) {
+      photos += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+    }
+
+    return `<div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${photos}
+      </div>
+    </div>`;
   };
 
   const timeStart = dayjs(time.start).format(`DD/MM/YY hh:mm`);
@@ -93,7 +110,7 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${destination.city}" list="destination-list-2">
                     <datalist id="destination-list-2">
-                      ${createDestinationList()}
+                      ${createCitiesList()}
                     </datalist>
                   </div>
 
@@ -131,23 +148,57 @@ const createEventEditorTemplate = (tripEvent, optionsList) => {
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${destination.description}</p>
+                    ${createPhotosTape()}
                   </section>
                 </section>
               </form>
             </li>`;
 };
 
-class EventEditorView extends AbstractView {
-  constructor(tripEvent, optionsList) {
+class EventEditorView extends SmartView {
+  constructor(tripEvent, optionsList, destinationsList) {
     super();
-    this._tripEvent = tripEvent;
+    this._data = tripEvent;
     this._optionsList = optionsList;
+    this._destinationsList = destinationsList;
     this._rollUpHandler = this._rollUpHandler.bind(this);
     this._submitFormHandler = this._submitFormHandler.bind(this);
+    this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
+    this._destinationCityChangeHandler = this._destinationCityChangeHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createEventEditorTemplate(this._tripEvent, this._optionsList);
+    return createEventEditorTemplate(this._data, this._optionsList, this._destinationsList);
+  }
+
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelector(`.event__type-list`)
+      .addEventListener(`change`, this._eventTypeChangeHandler);
+
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, this._destinationCityChangeHandler);
+
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`change`, this._priceChangeHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setRollUpHandler(this._callback.rollUp);
+    this.setSubmitFormHandler(this._callback.submitForm);
+  }
+
+  reset(tripEvent) {
+    this.updateData(
+        tripEvent
+    );
   }
 
   _rollUpHandler(evt) {
@@ -162,12 +213,34 @@ class EventEditorView extends AbstractView {
 
   _submitFormHandler(evt) {
     evt.preventDefault();
-    this._callback.submitForm();
+    this._callback.submitForm(this._data);
   }
 
   setSubmitFormHandler(callback) {
     this._callback.submitForm = callback;
     this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
+  }
+
+  _eventTypeChangeHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      type: evt.target.value,
+      options: []
+    });
+  }
+
+  _destinationCityChangeHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      destination: this._destinationsList.find((element) => element.city === evt.target.value),
+    });
+  }
+
+  _priceChangeHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      price: evt.target.value
+    });
   }
 }
 

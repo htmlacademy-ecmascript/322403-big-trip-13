@@ -1,11 +1,6 @@
 import dayjs from "dayjs";
 import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils/common.js";
-import {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION} from "../const.js";
-
-const generatePhotos = () => {
-  const getPhoto = () => `http://picsum.photos/248/152?r=${Math.random()}`;
-  return new Array(getRandomInteger(1, 5)).fill().map(getPhoto);
-};
+import {EVENT_TYPES} from "../const.js";
 
 const generateDate = () => {
   const maxDaysGap = 2;
@@ -22,7 +17,7 @@ const generateDate = () => {
 
 const generateId = () => Date.now() + (Math.random() * 10000);
 
-const generateTripEvent = (options) => {
+const generateTripEvent = (options, destinations) => {
   const type = getRandomItemFromArray(EVENT_TYPES);
   const start = generateDate();
   const getFinishDate = (startDate) => {
@@ -33,11 +28,7 @@ const generateTripEvent = (options) => {
     id: generateId(),
     type,
     price: getRandomInteger(50, 500),
-    destination: {
-      city: getRandomItemFromArray(EVENT_CITIES),
-      description: getRandomItemsFromArray(DESTINATION_DESCRIPTION, 1, 5),
-      photos: generatePhotos(),
-    },
+    destination: getRandomItemFromArray(destinations),
     time: {
       start,
       finish: getFinishDate(start),

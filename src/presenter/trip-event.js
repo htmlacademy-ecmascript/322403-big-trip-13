@@ -24,15 +24,16 @@ class TripEventPresenter {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(tripEvent, eventOptions) {
+  init(tripEvent, eventOptions, destinationsList) {
     this._tripEvent = tripEvent;
     this._eventOptions = eventOptions;
+    this._destinationsList = destinationsList;
 
     const prevTripEventComponent = this._tripEventComponent;
     const prevEventEditorComponent = this._eventEditorComponent;
 
     this._tripEventComponent = new TripEventView(this._tripEvent);
-    this._eventEditorComponent = new EventEditorView(this._tripEvent, this._eventOptions);
+    this._eventEditorComponent = new EventEditorView(this._tripEvent, this._eventOptions, this._destinationsList);
 
     this._tripEventComponent.setRollDownHandler(this._handleRollDown);
     this._tripEventComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -83,6 +84,7 @@ class TripEventPresenter {
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
+      this._eventEditorComponent.reset(this._tripEvent);
       this._replaceFormToCard();
     }
   }
@@ -92,10 +94,12 @@ class TripEventPresenter {
   }
 
   _handleRollUp() {
+    this._eventEditorComponent.reset(this._tripEvent);
     this._replaceFormToCard();
   }
 
-  _handleSubmitForm() {
+  _handleSubmitForm(data) {
+    this._changeData(data);
     this._replaceFormToCard();
   }
 
