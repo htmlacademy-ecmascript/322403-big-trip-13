@@ -20,8 +20,8 @@ const calculateRouteDetails = (tripEvents) => {
   return {
     cities: getCities(),
     dates: {
-      start: tripEvents[0].time.start,
-      finish: tripEvents[tripEvents.length - 1].time.finish,
+      start: tripEvents[0].timeStart,
+      finish: tripEvents[tripEvents.length - 1].timeFinish,
     },
     totalPrice: getTotalPrice()
   };

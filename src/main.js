@@ -14,7 +14,7 @@ const destinationsList = generateDestinationsList();
 const tripEvents = new Array(EVENT_COUNT)
   .fill()
   .map(() => generateTripEvent(eventOptions, destinationsList))
-  .sort((a, b) => a.time.start - b.time.start);
+  .sort((a, b) => a.timeStart - b.timeStart);
 
 const tripMainElement = document.querySelector(`.trip-main`);
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);

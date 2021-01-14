@@ -1,6 +1,6 @@
 const sortByTime = (tripEventA, tripEventB) => {
-  const tripEventADuration = tripEventA.time.finish - tripEventA.time.start;
-  const tripEventBDuration = tripEventB.time.finish - tripEventB.time.start;
+  const tripEventADuration = tripEventA.timeFinish - tripEventA.timeStart;
+  const tripEventBDuration = tripEventB.timeFinish - tripEventB.timeStart;
 
   return tripEventBDuration - tripEventADuration;
 };

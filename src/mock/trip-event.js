@@ -29,10 +29,8 @@ const generateTripEvent = (options, destinations) => {
     type,
     price: getRandomInteger(50, 500),
     destination: getRandomItemFromArray(destinations),
-    time: {
-      start,
-      finish: getFinishDate(start),
-    },
+    timeStart: start,
+    timeFinish: getFinishDate(start),
     options: getRandomItemsFromArray(options.filter((option) => option.type === type), 0, 5),
     isFavorite: Boolean(getRandomInteger(0, 1))
   };
