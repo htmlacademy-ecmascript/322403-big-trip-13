@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import {EVENT_TYPES} from "../const.js";
 import {SmartView} from "./smart.js";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createEventEditorTemplate = (data, optionsList, destinationsList) => {
-  const {type, price, options, time, destination} = data;
+  const {type, price, options, timeStart, timeFinish, destination} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -83,8 +86,8 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
     </div>`;
   };
 
-  const timeStart = dayjs(time.start).format(`DD/MM/YY hh:mm`);
-  const timeFinish = dayjs(time.finish).format(`DD/MM/YY hh:mm`);
+  const dateStart = dayjs(timeStart).format(`DD/MM/YY hh:mm`);
+  const dateFinish = dayjs(timeFinish).format(`DD/MM/YY hh:mm`);
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -116,10 +119,10 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-2">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value="${timeStart}">
+                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value="${dateStart}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-2">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value="${timeFinish}">
+                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value="${dateFinish}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -161,13 +164,19 @@ class EventEditorView extends SmartView {
     this._data = tripEvent;
     this._optionsList = optionsList;
     this._destinationsList = destinationsList;
+    this._startDatepicker = null;
+    this._finishDatepicker = null;
     this._rollUpHandler = this._rollUpHandler.bind(this);
     this._submitFormHandler = this._submitFormHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationCityChangeHandler = this._destinationCityChangeHandler.bind(this);
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
   }
 
   getTemplate() {
@@ -193,6 +202,68 @@ class EventEditorView extends SmartView {
 
     this.setRollUpHandler(this._callback.rollUp);
     this.setSubmitFormHandler(this._callback.submitForm);
+
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
+  }
+
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-2`),
+        {
+          dateFormat: `d/m/Y H:i`,
+          enableTime: true,
+          // eslint-disable-next-line camelcase
+          time_24hr: true,
+          defaultDate: this._data.timeStart,
+          onChange: this._startDateChangeHandler
+        }
+    );
+  }
+
+  _startDateChangeHandler([userDate]) {
+    if (this._data.timeFinish < userDate) {
+      this.updateData({
+        timeStart: userDate,
+        timeFinish: userDate,
+      });
+      return;
+    }
+
+    this.updateData({
+      timeStart: userDate
+    });
+  }
+
+  _setFinishDatepicker() {
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
+
+    this._finishDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-2`),
+        {
+          dateFormat: `d/m/Y H:i`,
+          enableTime: true,
+          // eslint-disable-next-line camelcase
+          time_24hr: true,
+          defaultDate: this._data.timeFinish,
+          minDate: this._data.timeStart,
+          onChange: this._finishDateChangeHandler
+        }
+    );
+  }
+
+  _finishDateChangeHandler([userDate]) {
+    this.updateData({
+      timeFinish: userDate
+    });
   }
 
   reset(tripEvent) {

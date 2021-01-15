@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import {AbstractView} from "./abstract.js";
 
 const createTripEventTemplate = (tripEvent) => {
-  const {type, price, options, time, isFavorite} = tripEvent;
+  const {type, price, options, timeStart, timeFinish, isFavorite} = tripEvent;
   const city = tripEvent.destination.city;
 
   const getFavoriteClassName = isFavorite ? `event__favorite-btn--active` : ``;
@@ -19,12 +19,12 @@ const createTripEventTemplate = (tripEvent) => {
     return result;
   };
 
-  const day = dayjs(time.start).format(`MMM DD`);
-  const date = dayjs(time.start).format(`YYYY-MM-DD`);
-  const timeStart = dayjs(time.start).format(`hh-mm`);
-  const dateTimeStart = dayjs(time.start).format(`YYYY-MM-DDThh:mm`);
-  const timeFinish = dayjs(time.finish).format(`hh-mm`);
-  const dateTimeFinish = dayjs(time.finish).format(`YYYY-MM-DDThh:mm`);
+  const day = dayjs(timeStart).format(`MMM DD`);
+  const date = dayjs(timeStart).format(`YYYY-MM-DD`);
+  const timeToStart = dayjs(timeStart).format(`hh-mm`);
+  const dateTimeStart = dayjs(timeStart).format(`YYYY-MM-DDThh:mm`);
+  const timeToFinish = dayjs(timeFinish).format(`hh-mm`);
+  const dateTimeFinish = dayjs(timeFinish).format(`YYYY-MM-DDThh:mm`);
 
   const getDuration = (start, finish) => {
     const durationInDays = dayjs(finish).diff(dayjs(start), `day`);
@@ -69,11 +69,11 @@ const createTripEventTemplate = (tripEvent) => {
                 <h3 class="event__title">${type} ${city}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${dateTimeStart}">${timeStart}</time>
+                    <time class="event__start-time" datetime="${dateTimeStart}">${timeToStart}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${dateTimeFinish}">${timeFinish}</time>
+                    <time class="event__end-time" datetime="${dateTimeFinish}">${timeToFinish}</time>
                   </p>
-                  <p class="event__duration">${getDuration(time.start, time.finish)}</p>
+                  <p class="event__duration">${getDuration(timeStart, timeFinish)}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${price}</span>
