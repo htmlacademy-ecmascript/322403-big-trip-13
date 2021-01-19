@@ -17,4 +17,22 @@ const OPTION_NAMES = [
   `Choose seats`, `Travel by train`, `Add meal`
 ];
 
-export {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION, OPTION_NAMES};
+const UserAction = {
+  UPDATE_TRIP_EVENT: `UPDATE_TRIP_EVENT`,
+  ADD_TRIP_EVENT: `ADD_TRIP_EVENT`,
+  DELETE_TRIP_EVENT: `DELETE_TRIP_EVENT`
+};
+
+const UpdateType = {
+  MINOR: `MINOR`,
+  MAJOR: `MAJOR`
+};
+
+const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
+
+export {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION, OPTION_NAMES, UpdateType, UserAction, FilterType};
