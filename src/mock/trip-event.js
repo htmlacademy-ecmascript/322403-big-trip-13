@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray} from "../utils/common.js";
+import {getRandomInteger, getRandomItemFromArray, getRandomItemsFromArray, generateId} from "../utils/common.js";
 import {EVENT_TYPES} from "../const.js";
 
 const generateDate = () => {
@@ -14,8 +14,6 @@ const generateDate = () => {
     .set(`minute`, getRandomItemFromArray([0, 30]))
     .toDate();
 };
-
-const generateId = () => Date.now() + (Math.random() * 10000);
 
 const generateTripEvent = (options, destinations) => {
   const type = getRandomItemFromArray(EVENT_TYPES);

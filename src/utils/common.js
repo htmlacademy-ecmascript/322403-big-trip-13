@@ -17,23 +17,11 @@ const getRandomItemsFromArray = (array, min, max) => {
   return arrayCopy.sort(() => 0.5 - Math.random()).slice(0, resultLength);
 };
 
-const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
-  if (index === -1) {
-    return items;
-  }
-
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1)
-  ];
-};
+const generateId = () => Date.now() + (Math.random() * 10000);
 
 export {
   getRandomInteger,
   getRandomItemFromArray,
   getRandomItemsFromArray,
-  updateItem,
+  generateId
 };

@@ -1,5 +1,6 @@
 import {EventEditorView} from "../view/event-editor.js";
 import {TripEventView} from "../view/trip-event.js";
+import {UserAction, UpdateType} from "../const.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
 
 const Mode = {
@@ -21,6 +22,7 @@ class TripEventPresenter {
     this._handleRollUp = this._handleRollUp.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleSubmitForm = this._handleSubmitForm.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
@@ -39,6 +41,7 @@ class TripEventPresenter {
     this._tripEventComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._eventEditorComponent.setRollUpHandler(this._handleRollUp);
     this._eventEditorComponent.setSubmitFormHandler(this._handleSubmitForm);
+    this._eventEditorComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevTripEventComponent === null || prevEventEditorComponent === null) {
       renderElement(this._tripEventsContainer, this._tripEventComponent, RenderPosition.BEFOREEND);
@@ -98,13 +101,27 @@ class TripEventPresenter {
     this._replaceFormToCard();
   }
 
-  _handleSubmitForm(data) {
-    this._changeData(data);
+  _handleSubmitForm(update) {
+    this._changeData(
+        UserAction.UPDATE_TRIP_EVENT,
+        UpdateType.MINOR,
+        update);
     this._replaceFormToCard();
   }
 
   _handleFavoriteClick() {
-    this._changeData(Object.assign({}, this._tripEvent, {isFavorite: !this._tripEvent.isFavorite}));
+    this._changeData(
+        UserAction.UPDATE_TRIP_EVENT,
+        UpdateType.MINOR,
+        Object.assign({}, this._tripEvent, {isFavorite: !this._tripEvent.isFavorite}));
+  }
+
+  _handleDeleteClick(tripEvent) {
+    this._changeData(
+        UserAction.DELETE_TRIP_EVENT,
+        UpdateType.MINOR,
+        tripEvent
+    );
   }
 }
 

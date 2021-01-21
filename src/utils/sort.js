@@ -1,4 +1,4 @@
-const sortByTime = (tripEventA, tripEventB) => {
+const sortByDuration = (tripEventA, tripEventB) => {
   const tripEventADuration = tripEventA.timeFinish - tripEventA.timeStart;
   const tripEventBDuration = tripEventB.timeFinish - tripEventB.timeStart;
 
@@ -9,4 +9,8 @@ const sortByPrice = (tripEventA, tripEventB) => {
   return tripEventB.price - tripEventA.price;
 };
 
-export {sortByTime, sortByPrice};
+const sortByDate = (tripEventA, tripEventB) => {
+  return tripEventA.timeStart - tripEventB.timeStart;
+};
+
+export {sortByDuration, sortByPrice, sortByDate};

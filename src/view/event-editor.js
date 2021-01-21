@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import he from "he";
 import {EVENT_TYPES} from "../const.js";
 import {SmartView} from "./smart.js";
 import flatpickr from "flatpickr";
@@ -111,7 +112,7 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
                     <label class="event__label  event__type-output" for="event-destination-2">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${destination.city}" list="destination-list-2">
+                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.city)}" list="destination-list-2">
                     <datalist id="destination-list-2">
                       ${createCitiesList()}
                     </datalist>
@@ -168,6 +169,7 @@ class EventEditorView extends SmartView {
     this._finishDatepicker = null;
     this._rollUpHandler = this._rollUpHandler.bind(this);
     this._submitFormHandler = this._submitFormHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationCityChangeHandler = this._destinationCityChangeHandler.bind(this);
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
@@ -177,6 +179,20 @@ class EventEditorView extends SmartView {
     this._setInnerHandlers();
     this._setStartDatepicker();
     this._setFinishDatepicker();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
   }
 
   getTemplate() {
@@ -202,6 +218,7 @@ class EventEditorView extends SmartView {
 
     this.setRollUpHandler(this._callback.rollUp);
     this.setSubmitFormHandler(this._callback.submitForm);
+    this.setDeleteClickHandler(this._callback.deleteClick);
 
     this._setStartDatepicker();
     this._setFinishDatepicker();
@@ -313,6 +330,17 @@ class EventEditorView extends SmartView {
       price: evt.target.value
     });
   }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(this._data);
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
 }
 
 export {EventEditorView};
