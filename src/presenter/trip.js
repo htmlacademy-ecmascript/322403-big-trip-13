@@ -29,9 +29,6 @@ class TripPresenter {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._tripEventsModel.addObserver(this._handleModelEvent);
-    this._filtersModel.addObserver(this._handleModelEvent);
-
     this._newTripEventPresenter = new NewTripEventPresenter(this._eventsListComponent, this._handleViewAction);
   }
 
@@ -40,8 +37,32 @@ class TripPresenter {
     this._destinationsList = destinationsList.slice();
     this._routeDetails = calculateRouteDetails(this._getTripEvents());
 
+    this._tripEventsModel.addObserver(this._handleModelEvent);
+    this._filtersModel.addObserver(this._handleModelEvent);
+
+    this._renderTripInformation();
+    this._renderTripPrice();
     this._renderTrip();
   }
+
+  deleteTripEventsList() {
+    this._newTripEventPresenter.delete();
+
+    Object
+      .values(this._tripEventPresenter)
+      .forEach((presenter) => presenter.delete());
+    this._tripEventPresenter = {};
+
+    remove(this._sortingComponent);
+    remove(this._noEventComponent);
+    remove(this._eventsListComponent);
+
+    this._currentSortType = `sort-day`;
+
+    this._tripEventsModel.removeObserver(this._handleModelEvent);
+    this._filtersModel.removeObserver(this._handleModelEvent);
+  }
+
 
   createTripEvent() {
     this._currentSortType = `sort-day`;
@@ -123,11 +144,19 @@ class TripPresenter {
   }
 
   _renderTripInformation() {
+    if (this._tripInformationComponent) {
+      remove(this._tripInformationComponent);
+    }
+
     this._tripInformationComponent = new TripInformationView(this._routeDetails);
     renderElement(this._tripDetailsContainer, this._tripInformationComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderTripPrice() {
+    if (this._tripPriceComponent) {
+      remove(this._tripPriceComponent);
+    }
+
     this._tripPriceComponent = new TripPriceView(this._routeDetails);
     renderElement(this._tripInformationComponent, this._tripPriceComponent, RenderPosition.BEFOREEND);
   }

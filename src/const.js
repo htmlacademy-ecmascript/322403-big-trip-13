@@ -34,5 +34,16 @@ const FilterType = {
   PAST: `past`
 };
 
+const MenuItem = {
+  TABLE: `Table`,
+  STATS: `Stats`
+};
 
-export {EVENT_TYPES, EVENT_CITIES, DESTINATION_DESCRIPTION, OPTION_NAMES, UpdateType, UserAction, FilterType};
+
+export {
+  EVENT_TYPES,
+  EVENT_CITIES,
+  DESTINATION_DESCRIPTION,
+  OPTION_NAMES, UpdateType,
+  UserAction, FilterType,
+  MenuItem};
