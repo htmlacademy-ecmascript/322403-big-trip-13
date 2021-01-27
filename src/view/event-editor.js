@@ -37,21 +37,21 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
     let eventOptionsList = ``;
 
     const isChecked = (currentEventOption) => {
-      return editingEventOptions.includes(currentEventOption) ? `checked` : ``;
+      return editingEventOptions.map((item) => item.title).find((item) => item === currentEventOption.title) ? `checked` : ``;
     };
 
-    for (const option of optionsList.filter((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase())) {
+    for (const option of optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers) {
       eventOptionsList += `
         <div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden"
-          id="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2"
+          id="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
-          name="event-${option.name.toLowerCase().replaceAll(` `, `-`)}"
+          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}"
           ${isChecked(option)}>
           <label
           class="event__offer-label"
-          for="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2">
-            <span class="event__offer-title">${option.name}</span>
+          for="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2">
+            <span class="event__offer-title">${option.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${option.price}</span>
           </label>
@@ -63,7 +63,7 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
 
   const createCitiesList = () => {
     let cities = ``;
-    for (const city of destinationsList.map((x) => x.city)) {
+    for (const city of destinationsList.map((x) => x.name)) {
       cities += `<option value="${city}"></option>`;
     }
 
@@ -71,13 +71,13 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
   };
 
   const createPhotosTape = () => {
-    if (!destination.photos) {
+    if (!destination.pictures) {
       return ``;
     }
 
     let photos = ``;
-    for (const photo of destination.photos) {
-      photos += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+    for (const photo of destination.pictures) {
+      photos += `<img class="event__photo" src="${photo.src}" alt="Event photo">`;
     }
 
     return `<div class="event__photos-container">
@@ -112,7 +112,7 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
                     <label class="event__label  event__type-output" for="event-destination-2">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.city)}" list="destination-list-2">
+                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-2">
                     <datalist id="destination-list-2">
                       ${createCitiesList()}
                     </datalist>
@@ -320,14 +320,14 @@ class EventEditorView extends SmartView {
   _destinationCityChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      destination: this._destinationsList.find((element) => element.city === evt.target.value),
+      destination: this._destinationsList.find((element) => element.name === evt.target.value),
     });
   }
 
   _priceChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     });
   }
 

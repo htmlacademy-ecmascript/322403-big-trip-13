@@ -7,8 +7,8 @@ const calculateRouteDetails = (tripEvents) => {
     let result = [];
 
     for (const tripEvent of tripEvents) {
-      if (!result || result[tripEvents.length - 1] !== tripEvent.destination.city) {
-        result.push(tripEvent.destination.city);
+      if (!result || result[tripEvents.length - 1] !== tripEvent.destination.name) {
+        result.push(tripEvent.destination.name);
       }
     }
 
