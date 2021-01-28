@@ -4,7 +4,7 @@ import {SortingView} from "../view/sorting.js";
 import {TripPriceView} from "../view/trip-price.js";
 import {TripInformationView} from "../view/trip-information.js";
 import {LoadingView} from "../view/loading.js";
-import {TripEventPresenter} from "./trip-event.js";
+import {TripEventPresenter, State as TripEventPresenterViewState} from "./trip-event.js";
 import {NewTripEventPresenter} from "./new-trip-event";
 import {renderElement, RenderPosition, remove} from "../utils/render.js";
 import {UserAction, UpdateType, FilterType} from "../const.js";
@@ -90,15 +90,34 @@ class TripPresenter {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_TRIP_EVENT:
-        this._api.updateTripEvent(update).then((response) => {
-          this._tripEventsModel.updateTripEvent(updateType, response);
-        });
+        this._tripEventPresenter[update.id].setViewState(TripEventPresenterViewState.SAVING);
+        this._api.updateTripEvent(update)
+          .then((response) => {
+            this._tripEventsModel.updateTripEvent(updateType, response);
+          })
+          .catch(() => {
+            this._tripEventPresenter[update.id].setViewState(TripEventPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_TRIP_EVENT:
-        this._tripEventsModel.addTripEvent(updateType, update);
+        this._newTripEventPresenter.setSaving();
+        this._api.addTripEvent(update)
+          .then((response) => {
+            this._tripEventsModel.addTripEvent(updateType, response);
+          })
+          .catch(() => {
+            this._newTripEventPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_TRIP_EVENT:
-        this._tripEventsModel.deleteTripEvent(updateType, update);
+        this._tripEventPresenter[update.id].setViewState(TripEventPresenterViewState.DELETING);
+        this._api.deleteTripEvent(update)
+          .then(() => {
+            this._tripEventsModel.deleteTripEvent(updateType, update);
+          })
+          .catch(() => {
+            this._tripEventPresenter[update.id].setViewState(TripEventPresenterViewState.ABORTING);
+          });
         break;
     }
   }

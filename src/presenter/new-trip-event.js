@@ -1,5 +1,4 @@
 import {NewEventCreatorView} from "../view/new-event-creator.js";
-import {generateId} from "../utils/common.js";
 import {remove, renderElement, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -40,13 +39,32 @@ class NewTripEventPresenter {
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._newTripEventComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._newTripEventComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._newTripEventComponent.shake(resetFormState);
+  }
+
+
   _handleFormSubmit(tripEvent) {
     this._changeData(
         UserAction.ADD_TRIP_EVENT,
         UpdateType.MINOR,
-        Object.assign({id: generateId()}, tripEvent)
+        tripEvent
     );
-    this.delete();
   }
 
   _handleDeleteClick() {

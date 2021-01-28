@@ -2,7 +2,9 @@ import {TripEventsModel} from "./model/trip-events.js";
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
@@ -42,6 +44,25 @@ class Api {
       .then(this.toJSON)
       .then(TripEventsModel.adaptToClient);
   }
+
+  addTripEvent(tripEvent) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(TripEventsModel.adaptToServer(tripEvent)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(this.toJSON)
+      .then(TripEventsModel.adaptToClient);
+  }
+
+  deleteTripEvent(tripEvent) {
+    return this._load({
+      url: `points/${tripEvent.id}`,
+      method: Method.DELETE
+    });
+  }
+
 
   _load({
     url,

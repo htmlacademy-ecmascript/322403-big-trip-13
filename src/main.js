@@ -20,6 +20,9 @@ const siteMenuComponent = new SiteMenuView();
 const api = new Api(END_POINT, AUTHORIZATION);
 const tripEventsModel = new TripEventsModel();
 
+const filtersModel = new FiltersModel();
+const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel);
+
 Promise.all([
   api.getTripEvents(),
   api.getDestinations(),
@@ -31,16 +34,14 @@ Promise.all([
 
   renderElement(tripControlsElement, siteMenuComponent, RenderPosition.BEFOREEND);
   siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+  filterPresenter.init();
 }).catch(() => {
   tripEventsModel.setTripEvents(UpdateType.INIT, []);
 
   renderElement(tripControlsElement, siteMenuComponent, RenderPosition.BEFOREEND);
   siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+  filterPresenter.init();
 });
-
-const filtersModel = new FiltersModel();
-const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel);
-filterPresenter.init();
 
 
 let statisticsComponent = null;

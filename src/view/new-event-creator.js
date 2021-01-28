@@ -5,7 +5,7 @@ import {SmartView} from "./smart.js";
 import flatpickr from "flatpickr";
 
 const BLANK_TRIP_EVENT = {
-  type: `Flight`,
+  type: `flight`,
   price: ``,
   destination: {
     name: ``,
@@ -14,14 +14,16 @@ const BLANK_TRIP_EVENT = {
   },
   timeStart: new Date(),
   timeFinish: new Date(),
-  options: ``,
-  isFavorite: false
+  options: [],
+  isFavorite: false,
+  isDisabled: false,
+  isSaving: false,
 };
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
-  const {type, price, timeStart, timeFinish, destination} = data;
+  const {type, price, timeStart, timeFinish, destination, isDisabled, isSaving} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -39,7 +41,8 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           type="radio"
           name="event-type"
           value="${eventType.toLowerCase()}"
-          ${isChecked(eventType)}>
+          ${isChecked(eventType)}
+          ${isDisabled ? `disabled` : ``}>
             <label class="event__type-label  event__type-label--${eventType.toLowerCase()}" for="event-type-${eventType.toLowerCase()}-2">${eventType}</label>
         </div>`;
     }
@@ -56,7 +59,8 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           <input class="event__offer-checkbox  visually-hidden"
           id="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
-          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}">
+          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}"
+          ${isDisabled ? `disabled` : ``}>
           <label
           class="event__offer-label"
           for="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2">
@@ -125,7 +129,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-2" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-2" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -139,7 +143,14 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                     <label class="event__label  event__type-output" for="event-destination-2">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-2">
+                    <input
+                    class="event__input  event__input--destination"
+                    id="event-destination-2"
+                    type="text"
+                    name="event-destination"
+                    value="${he.encode(destination.name)}"
+                    list="destination-list-2"
+                    ${isDisabled ? `disabled` : ``}>
                     <datalist id="destination-list-2">
                       ${createCitiesList()}
                     </datalist>
@@ -147,10 +158,22 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-2">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value="${dateStart}">
+                    <input
+                    class="event__input  event__input--time"
+                    id="event-start-time-2"
+                    type="text"
+                    name="event-start-time"
+                    value="${dateStart}"
+                    ${isDisabled ? `disabled` : ``}>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-2">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value="${dateFinish}">
+                    <input
+                    class="event__input  event__input--time"
+                    id="event-end-time-2"
+                    type="text"
+                    name="event-end-time"
+                    value="${dateFinish}"
+                    ${isDisabled ? `disabled` : ``}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -158,10 +181,17 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-2" type="text" name="event-price" value="${price}">
+                    <input
+                    class="event__input  event__input--price"
+                    id="event-price-2"
+                    type="text"
+                    name="event-price"
+                    ${isDisabled ? `disabled` : ``}
+                    value="${price}"
+                    >
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
                   <button class="event__reset-btn" type="reset">Delete</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
@@ -345,7 +375,7 @@ class NewEventCreatorView extends SmartView {
   _priceChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     });
   }
 
