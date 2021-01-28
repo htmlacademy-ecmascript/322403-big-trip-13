@@ -8,9 +8,9 @@ const BLANK_TRIP_EVENT = {
   type: `Flight`,
   price: ``,
   destination: {
-    city: ``,
+    name: ``,
     description: ``,
-    photos: ``
+    pictures: ``
   },
   timeStart: new Date(),
   timeFinish: new Date(),
@@ -21,7 +21,7 @@ const BLANK_TRIP_EVENT = {
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
-  const {type, price, options, timeStart, timeFinish, destination} = data;
+  const {type, price, timeStart, timeFinish, destination} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -47,25 +47,20 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
     return eventTypesList;
   };
 
-  const createEventOptionsList = (editingEventOptions) => {
+  const createEventOptionsList = () => {
     let eventOptionsList = ``;
 
-    const isChecked = (currentEventOption) => {
-      return editingEventOptions.includes(currentEventOption) ? `checked` : ``;
-    };
-
-    for (const option of optionsList.filter((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase())) {
+    for (const option of optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers) {
       eventOptionsList += `
         <div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden"
-          id="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2"
+          id="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
-          name="event-${option.name.toLowerCase().replaceAll(` `, `-`)}"
-          ${isChecked(option)}>
+          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}">
           <label
           class="event__offer-label"
-          for="event-${option.name.toLowerCase().replaceAll(` `, `-`)}-2">
-            <span class="event__offer-title">${option.name}</span>
+          for="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2">
+            <span class="event__offer-title">${option.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${option.price}</span>
           </label>
@@ -83,7 +78,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
 
   const createCitiesList = () => {
     let cities = ``;
-    for (const city of destinationsList.map((x) => x.city)) {
+    for (const city of destinationsList.map((x) => x.name)) {
       cities += `<option value="${city}"></option>`;
     }
 
@@ -91,13 +86,13 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
   };
 
   const createPhotosTape = () => {
-    if (!destination.photos) {
+    if (!destination.pictures) {
       return ``;
     }
 
     let photos = ``;
-    for (const photo of destination.photos) {
-      photos += `<img class="event__photo" src="${photo}" alt="Event photo">`;
+    for (const photo of destination.pictures) {
+      photos += `<img class="event__photo" src="${photo.src}" alt="Event photo">`;
     }
 
     return `<div class="event__photos-container">
@@ -144,7 +139,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                     <label class="event__label  event__type-output" for="event-destination-2">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.city)}" list="destination-list-2">
+                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-2">
                     <datalist id="destination-list-2">
                       ${createCitiesList()}
                     </datalist>
@@ -173,7 +168,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                   </button>
                 </header>
                 <section class="event__details">
-                    ${createEventOptionsList(options)}
+                    ${createEventOptionsList()}
 
                     ${createDestination()}
                   </section>
@@ -343,7 +338,7 @@ class NewEventCreatorView extends SmartView {
   _destinationCityChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      destination: this._destinationsList.find((element) => element.city === evt.target.value),
+      destination: this._destinationsList.find((element) => element.name === evt.target.value),
     });
   }
 

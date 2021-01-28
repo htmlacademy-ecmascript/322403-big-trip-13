@@ -3,7 +3,7 @@ import {AbstractView} from "./abstract.js";
 
 const createTripEventTemplate = (tripEvent) => {
   const {type, price, options, timeStart, timeFinish, isFavorite} = tripEvent;
-  const city = tripEvent.destination.city;
+  const city = tripEvent.destination.name;
 
   const getFavoriteClassName = isFavorite ? `event__favorite-btn--active` : ``;
 
@@ -11,7 +11,7 @@ const createTripEventTemplate = (tripEvent) => {
     let result = ``;
     for (const optionsItem of optionsArray) {
       result += `<li class="event__offer">
-        <span class="event__offer-title">${optionsItem.name}</span>
+        <span class="event__offer-title">${optionsItem.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${optionsItem.price}</span>
       </li>`;
