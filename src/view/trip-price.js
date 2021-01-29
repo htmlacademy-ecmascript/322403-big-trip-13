@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract.js";
+import AbstractView from "./abstract.js";
 
 const createTripPriceTemplate = (routeDetails) => {
   return `<p class="trip-info__cost">
@@ -6,7 +6,7 @@ const createTripPriceTemplate = (routeDetails) => {
             </p>`;
 };
 
-class TripPriceView extends AbstractView {
+export default class TripPriceView extends AbstractView {
   constructor(routeDetails) {
     super();
     this._routeDetails = routeDetails;
@@ -16,6 +16,4 @@ class TripPriceView extends AbstractView {
     return createTripPriceTemplate(this._routeDetails);
   }
 }
-
-export {TripPriceView};
 

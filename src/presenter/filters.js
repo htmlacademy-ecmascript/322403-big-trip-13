@@ -1,8 +1,8 @@
-import {FiltersView} from "../view/filters.js";
+import FiltersView from "../view/filters.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
 import {FilterType, UpdateType} from "../const.js";
 
-class FiltersPresenter {
+export default class FiltersPresenter {
   constructor(filterContainer, filterModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
@@ -34,18 +34,6 @@ class FiltersPresenter {
     remove(prevFilterComponent);
   }
 
-  _handleModelEvent() {
-    this.init();
-  }
-
-  _handleFilterTypeChange(filterType) {
-    if (this._currentFilter === filterType) {
-      return;
-    }
-
-    this._filterModel.setFilter(UpdateType.MAJOR, filterType);
-  }
-
   _getFilters() {
     return [
       {
@@ -62,6 +50,17 @@ class FiltersPresenter {
       }
     ];
   }
+
+  _handleModelEvent() {
+    this.init();
+  }
+
+  _handleFilterTypeChange(filterType) {
+    if (this._currentFilter === filterType) {
+      return;
+    }
+
+    this._filterModel.setFilter(UpdateType.MAJOR, filterType);
+  }
 }
 
-export {FiltersPresenter};

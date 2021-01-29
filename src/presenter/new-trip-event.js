@@ -1,42 +1,36 @@
-import {NewEventCreatorView} from "../view/new-event-creator.js";
+import NewEventCreatorView from "../view/new-event-creator.js";
 import {remove, renderElement, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
-class NewTripEventPresenter {
-  constructor(tripEventsContainer, changeData) {
-    this._tripEventsContainer = tripEventsContainer;
+export default class NewTripEventPresenter {
+  constructor(changeData) {
+
     this._changeData = changeData;
 
     this._newTripEventComponent = null;
 
+    this._handleRollUp = this._handleRollUp.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(eventOptions, destinationsList) {
+  init(tripEventsContainer, eventOptions, destinationsList, newEventButton) {
     if (this._newTripEventComponent !== null) {
       return;
     }
 
+    this._tripEventsContainer = tripEventsContainer;
+    this._newEventButton = newEventButton;
     this._newTripEventComponent = new NewEventCreatorView(eventOptions, destinationsList);
     this._newTripEventComponent.setSubmitFormHandler(this._handleFormSubmit);
     this._newTripEventComponent.setDeleteClickHandler(this._handleDeleteClick);
+    this._newTripEventComponent.setRollUpHandler(this._handleRollUp);
 
     renderElement(this._tripEventsContainer, this._newTripEventComponent, RenderPosition.AFTERBEGIN);
+    this._newEventButton.disabled = true;
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
-  delete() {
-    if (this._newTripEventComponent === null) {
-      return;
-    }
-
-    remove(this._newTripEventComponent);
-    this._newTripEventComponent = null;
-
-    document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   setSaving() {
@@ -58,6 +52,18 @@ class NewTripEventPresenter {
     this._newTripEventComponent.shake(resetFormState);
   }
 
+  delete() {
+    if (this._newTripEventComponent === null) {
+      return;
+    }
+
+    remove(this._newTripEventComponent);
+    this._newTripEventComponent = null;
+    this._newEventButton.disabled = false;
+
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+  }
+
 
   _handleFormSubmit(tripEvent) {
     this._changeData(
@@ -71,6 +77,10 @@ class NewTripEventPresenter {
     this.delete();
   }
 
+  _handleRollUp() {
+    this.delete();
+  }
+
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
@@ -78,5 +88,3 @@ class NewTripEventPresenter {
     }
   }
 }
-
-export {NewTripEventPresenter};

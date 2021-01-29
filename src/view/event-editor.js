@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import he from "he";
 import {EVENT_TYPES} from "../const.js";
-import {SmartView} from "./smart.js";
+import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
@@ -35,6 +35,10 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
   };
 
   const createEventOptionsList = (editingEventOptions) => {
+    if (optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers.length === 0) {
+      return ``;
+    }
+
     let eventOptionsList = ``;
 
     const isChecked = (currentEventOption) => {
@@ -60,7 +64,14 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
         </div>`;
     }
 
-    return eventOptionsList;
+
+    return `<section class="event__section  event__section--offers">
+                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+                    <div class="event__available-offers">
+                    ${eventOptionsList}
+                    </div>
+                  </section>`;
   };
 
   const createCitiesList = () => {
@@ -87,6 +98,18 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
         ${photos}
       </div>
     </div>`;
+  };
+
+  const createDestination = () => {
+    if (!destination.description) {
+      return ``;
+    }
+
+    return `<section class="event__section  event__section--destination">
+                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                    <p class="event__destination-description">${destination.description}</p>
+                    ${createPhotosTape()}
+                  </section>`;
   };
 
   const dateStart = dayjs(timeStart).format(`DD/MM/YY hh:mm`);
@@ -168,25 +191,16 @@ const createEventEditorTemplate = (data, optionsList, destinationsList) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                  ${createEventOptionsList(options)}
 
-                    <div class="event__available-offers">
-                    ${createEventOptionsList(options)}
-                    </div>
-                  </section>
-
-                  <section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination.description}</p>
-                    ${createPhotosTape()}
+                  ${createDestination()}
                   </section>
                 </section>
               </form>
             </li>`;
 };
 
-class EventEditorView extends SmartView {
+export default class EventEditorView extends SmartView {
   constructor(tripEvent, optionsList, destinationsList) {
     super();
     this._data = tripEvent;
@@ -200,12 +214,50 @@ class EventEditorView extends SmartView {
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationCityChangeHandler = this._destinationCityChangeHandler.bind(this);
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
+    this._saveOptionsHandler = this._saveOptionsHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
     this._setFinishDatepicker();
+  }
+
+  getTemplate() {
+    return createEventEditorTemplate(this._data, this._optionsList, this._destinationsList);
+  }
+
+  setRollUpHandler(callback) {
+    this._callback.rollUp = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
+  }
+
+  setSubmitFormHandler(callback) {
+    this._callback.submitForm = callback;
+    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setRollUpHandler(this._callback.rollUp);
+    this.setSubmitFormHandler(this._callback.submitForm);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
+  }
+
+
+  reset(tripEvent) {
+    this.updateData(
+        tripEvent
+    );
   }
 
   removeElement() {
@@ -222,10 +274,6 @@ class EventEditorView extends SmartView {
     }
   }
 
-  getTemplate() {
-    return createEventEditorTemplate(this._data, this._optionsList, this._destinationsList);
-  }
-
   _setInnerHandlers() {
     this.getElement()
       .querySelector(`.event__type-list`)
@@ -238,17 +286,10 @@ class EventEditorView extends SmartView {
     this.getElement()
       .querySelector(`.event__input--price`)
       .addEventListener(`change`, this._priceChangeHandler);
-  }
 
-  restoreHandlers() {
-    this._setInnerHandlers();
-
-    this.setRollUpHandler(this._callback.rollUp);
-    this.setSubmitFormHandler(this._callback.submitForm);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-
-    this._setStartDatepicker();
-    this._setFinishDatepicker();
+    this.getElement()
+      .querySelector(`.event--edit`)
+      .addEventListener(`submit`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
@@ -265,23 +306,9 @@ class EventEditorView extends SmartView {
           // eslint-disable-next-line camelcase
           time_24hr: true,
           defaultDate: this._data.timeStart,
-          onChange: this._startDateChangeHandler
+          onClose: this._startDateChangeHandler
         }
     );
-  }
-
-  _startDateChangeHandler([userDate]) {
-    if (this._data.timeFinish < userDate) {
-      this.updateData({
-        timeStart: userDate,
-        timeFinish: userDate,
-      });
-      return;
-    }
-
-    this.updateData({
-      timeStart: userDate
-    });
   }
 
   _setFinishDatepicker() {
@@ -304,16 +331,24 @@ class EventEditorView extends SmartView {
     );
   }
 
+  _startDateChangeHandler([userDate]) {
+    if (this._data.timeFinish < userDate) {
+      this.updateData({
+        timeStart: userDate,
+        timeFinish: userDate,
+      });
+      return;
+    }
+
+    this.updateData({
+      timeStart: userDate
+    });
+  }
+
   _finishDateChangeHandler([userDate]) {
     this.updateData({
       timeFinish: userDate
     });
-  }
-
-  reset(tripEvent) {
-    this.updateData(
-        tripEvent
-    );
   }
 
   _rollUpHandler(evt) {
@@ -321,19 +356,9 @@ class EventEditorView extends SmartView {
     this._callback.rollUp();
   }
 
-  setRollUpHandler(callback) {
-    this._callback.rollUp = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
-  }
-
   _submitFormHandler(evt) {
     evt.preventDefault();
     this._callback.submitForm(this._data);
-  }
-
-  setSubmitFormHandler(callback) {
-    this._callback.submitForm = callback;
-    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
   }
 
   _eventTypeChangeHandler(evt) {
@@ -363,11 +388,30 @@ class EventEditorView extends SmartView {
     this._callback.deleteClick(this._data);
   }
 
-  setDeleteClickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  _saveOptionsHandler() {
+    const currentOptions = this.getElement().querySelectorAll(`.event__offer-checkbox:checked+label .event__offer-title`);
+
+    if (currentOptions.length === 0) {
+      this.updateData({
+        options: []
+      });
+      return;
+    }
+
+    let options = [];
+
+    for (const option of currentOptions) {
+      options.push(
+          this._optionsList
+          .find((item) => item.type === this._data.type)
+          .offers
+          .find((item) => option.textContent.includes(item.title))
+      );
+    }
+
+    this.updateData({
+      options
+    });
   }
 
 }
-
-export {EventEditorView};

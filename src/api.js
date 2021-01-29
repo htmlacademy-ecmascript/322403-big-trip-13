@@ -1,4 +1,4 @@
-import {TripEventsModel} from "./model/trip-events.js";
+import TripEventsModel from "./model/trip-events.js";
 
 const Method = {
   GET: `GET`,
@@ -12,7 +12,7 @@ const SuccessHTTPStatusRange = {
   MAX: 299
 };
 
-class Api {
+export default class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
@@ -63,23 +63,6 @@ class Api {
     });
   }
 
-
-  _load({
-    url,
-    method = Method.GET,
-    body = null,
-    headers = new Headers()
-  }) {
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(
-        `${this._endPoint}/${url}`,
-        {method, body, headers}
-    )
-      .then(this.checkStatus)
-      .catch(this.catchError);
-  }
-
   checkStatus(response) {
     if (
       response.status < SuccessHTTPStatusRange.MIN ||
@@ -98,6 +81,20 @@ class Api {
   catchError(err) {
     throw err;
   }
-}
 
-export {Api};
+  _load({
+    url,
+    method = Method.GET,
+    body = null,
+    headers = new Headers()
+  }) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(
+        `${this._endPoint}/${url}`,
+        {method, body, headers}
+    )
+      .then(this.checkStatus)
+      .catch(this.catchError);
+  }
+}

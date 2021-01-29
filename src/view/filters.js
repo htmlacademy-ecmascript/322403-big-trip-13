@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract.js";
+import AbstractView from "./abstract.js";
 
 const createFiltersTemplate = (filterItems, currentFilterType) => {
   const createFilterItemTemplate = (filter, currentFilter) => {
@@ -32,7 +32,7 @@ const createFiltersTemplate = (filterItems, currentFilterType) => {
           </div>`;
 };
 
-class FiltersView extends AbstractView {
+export default class FiltersView extends AbstractView {
   constructor(filters, currentFilterType) {
     super();
     this._filters = filters;
@@ -45,17 +45,14 @@ class FiltersView extends AbstractView {
     return createFiltersTemplate(this._filters, this._currentFilter);
   }
 
-  _filterTypeChangeHandler(evt) {
-    evt.preventDefault();
-    this._callback.filterTypeChange(evt.target.value);
-  }
-
   setFilterTypeChangeHandler(callback) {
     this._callback.filterTypeChange = callback;
     this.getElement().addEventListener(`change`, this._filterTypeChangeHandler);
   }
+
+  _filterTypeChangeHandler(evt) {
+    evt.preventDefault();
+    this._callback.filterTypeChange(evt.target.value);
+  }
 }
-
-
-export {FiltersView};
 

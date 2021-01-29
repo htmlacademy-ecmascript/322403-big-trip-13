@@ -1,5 +1,5 @@
-import {EventEditorView} from "../view/event-editor.js";
-import {TripEventView} from "../view/trip-event.js";
+import EventEditorView from "../view/event-editor.js";
+import TripEventView from "../view/trip-event.js";
 import {UserAction, UpdateType} from "../const.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
 
@@ -8,14 +8,14 @@ const Mode = {
   EDITING: `EDITING`
 };
 
-export const State = {
+const State = {
   SAVING: `SAVING`,
   DELETING: `DELETING`,
   ABORTING: `ABORTING`
 };
 
 
-class TripEventPresenter {
+export default class TripEventPresenter {
   constructor(tripEventsContainer, changeData, changeMode) {
     this._tripEventsContainer = tripEventsContainer;
     this._changeData = changeData;
@@ -161,4 +161,4 @@ class TripEventPresenter {
   }
 }
 
-export {TripEventPresenter};
+export {State};

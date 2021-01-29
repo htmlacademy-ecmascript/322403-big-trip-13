@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import he from "he";
 import {EVENT_TYPES} from "../const.js";
-import {SmartView} from "./smart.js";
+import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_TRIP_EVENT = {
   type: `flight`,
@@ -19,8 +21,6 @@ const BLANK_TRIP_EVENT = {
   isDisabled: false,
   isSaving: false,
 };
-
-import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
   const {type, price, timeStart, timeFinish, destination, isDisabled, isSaving} = data;
@@ -51,6 +51,10 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
   };
 
   const createEventOptionsList = () => {
+    if (optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers.length === 0) {
+      return ``;
+    }
+
     let eventOptionsList = ``;
 
     for (const option of optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers) {
@@ -192,7 +196,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__reset-btn" type="reset">Cancel</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -207,7 +211,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
             </li>`;
 };
 
-class NewEventCreatorView extends SmartView {
+export default class NewEventCreatorView extends SmartView {
   constructor(optionsList, destinationsList) {
     super();
     this._data = BLANK_TRIP_EVENT;
@@ -223,6 +227,7 @@ class NewEventCreatorView extends SmartView {
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
+    this._saveOptionsHandler = this._saveOptionsHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -247,6 +252,38 @@ class NewEventCreatorView extends SmartView {
     return createNewEventCreatorTemplate(this._data, this._optionsList, this._destinationsList);
   }
 
+  setRollUpHandler(callback) {
+    this._callback.rollUp = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
+  }
+
+  setSubmitFormHandler(callback) {
+    this._callback.submitForm = callback;
+    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setRollUpHandler(this._callback.rollUp);
+    this.setSubmitFormHandler(this._callback.submitForm);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
+  }
+
+  reset(tripEvent) {
+    this.updateData(
+        tripEvent
+    );
+  }
+
   _setInnerHandlers() {
     this.getElement()
       .querySelector(`.event__type-list`)
@@ -259,17 +296,10 @@ class NewEventCreatorView extends SmartView {
     this.getElement()
       .querySelector(`.event__input--price`)
       .addEventListener(`change`, this._priceChangeHandler);
-  }
 
-  restoreHandlers() {
-    this._setInnerHandlers();
-
-    this.setRollUpHandler(this._callback.rollUp);
-    this.setSubmitFormHandler(this._callback.submitForm);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-
-    this._setStartDatepicker();
-    this._setFinishDatepicker();
+    this.getElement()
+      .querySelector(`.event--edit`)
+      .addEventListener(`submit`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
@@ -289,20 +319,6 @@ class NewEventCreatorView extends SmartView {
           onChange: this._startDateChangeHandler
         }
     );
-  }
-
-  _startDateChangeHandler([userDate]) {
-    if (this._data.timeFinish < userDate) {
-      this.updateData({
-        timeStart: userDate,
-        timeFinish: userDate,
-      });
-      return;
-    }
-
-    this.updateData({
-      timeStart: userDate
-    });
   }
 
   _setFinishDatepicker() {
@@ -325,16 +341,24 @@ class NewEventCreatorView extends SmartView {
     );
   }
 
+  _startDateChangeHandler([userDate]) {
+    if (this._data.timeFinish < userDate) {
+      this.updateData({
+        timeStart: userDate,
+        timeFinish: userDate,
+      });
+      return;
+    }
+
+    this.updateData({
+      timeStart: userDate
+    });
+  }
+
   _finishDateChangeHandler([userDate]) {
     this.updateData({
       timeFinish: userDate
     });
-  }
-
-  reset(tripEvent) {
-    this.updateData(
-        tripEvent
-    );
   }
 
   _rollUpHandler(evt) {
@@ -342,20 +366,11 @@ class NewEventCreatorView extends SmartView {
     this._callback.rollUp();
   }
 
-  setRollUpHandler(callback) {
-    this._callback.rollUp = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
-  }
-
   _submitFormHandler(evt) {
     evt.preventDefault();
     this._callback.submitForm(this._data);
   }
 
-  setSubmitFormHandler(callback) {
-    this._callback.submitForm = callback;
-    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
-  }
 
   _eventTypeChangeHandler(evt) {
     evt.preventDefault();
@@ -384,11 +399,30 @@ class NewEventCreatorView extends SmartView {
     this._callback.deleteClick(this._data);
   }
 
-  setDeleteClickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  _saveOptionsHandler() {
+    const currentOptions = this.getElement().querySelectorAll(`.event__offer-checkbox:checked+label .event__offer-title`);
+
+    if (currentOptions.length === 0) {
+      this.updateData({
+        options: []
+      });
+      return;
+    }
+
+    let options = [];
+
+    for (const option of currentOptions) {
+      options.push(
+          this._optionsList
+          .find((item) => item.type === this._data.type)
+          .offers
+          .find((item) => option.textContent.includes(item.title))
+      );
+    }
+
+    this.updateData({
+      options
+    });
   }
 
 }
-
-export {NewEventCreatorView};
