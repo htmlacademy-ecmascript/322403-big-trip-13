@@ -288,8 +288,8 @@ export default class EventEditorView extends SmartView {
       .addEventListener(`change`, this._priceChangeHandler);
 
     this.getElement()
-      .querySelector(`.event--edit`)
-      .addEventListener(`submit`, this._saveOptionsHandler);
+      .querySelector(`.event__details`)
+      .addEventListener(`change`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
