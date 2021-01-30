@@ -415,7 +415,7 @@ export default class NewEventCreatorView extends SmartView {
       return;
     }
 
-    let options = [];
+    const options = [];
 
     for (const option of currentOptions) {
       options.push(
