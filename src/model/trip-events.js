@@ -1,6 +1,6 @@
-import {Observer} from "../utils/observer.js";
+import Observer from "../utils/observer.js";
 
-class TripEventsModel extends Observer {
+export default class TripEventsModel extends Observer {
   constructor() {
     super();
     this._tripEvents = [];
@@ -85,6 +85,9 @@ class TripEventsModel extends Observer {
           timeFinish: new Date(tripEvent.date_to),
           isFavorite: tripEvent.is_favorite,
           options: tripEvent.offers,
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
         }
     );
 
@@ -117,9 +120,10 @@ class TripEventsModel extends Observer {
     delete adaptedTripEvent.timeFinish;
     delete adaptedTripEvent.isFavorite;
     delete adaptedTripEvent.options;
+    delete adaptedTripEvent.isDisabled;
+    delete adaptedTripEvent.isSaving;
+    delete adaptedTripEvent.isDeleting;
 
     return adaptedTripEvent;
   }
 }
-
-export {TripEventsModel};

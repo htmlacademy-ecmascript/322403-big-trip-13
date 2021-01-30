@@ -1,6 +1,6 @@
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import {SmartView} from "./smart.js";
+import SmartView from "./smart.js";
 
 const BAR_HEIGHT = 55;
 const MILLISECONDS_PER_DAY = 86400000;
@@ -258,7 +258,7 @@ const createStatisticsTemplate = () => {
         </section>`;
 };
 
-class StatisticsView extends SmartView {
+export default class StatisticsView extends SmartView {
   constructor(tripEvents) {
     super();
 
@@ -298,5 +298,3 @@ class StatisticsView extends SmartView {
     this._timeChart = renderTimeChart(timeCtx, this._data);
   }
 }
-
-export {StatisticsView};

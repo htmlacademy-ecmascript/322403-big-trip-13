@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
 import he from "he";
 import {EVENT_TYPES} from "../const.js";
-import {SmartView} from "./smart.js";
+import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
 
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+
 const BLANK_TRIP_EVENT = {
-  type: `Flight`,
+  type: `flight`,
   price: ``,
   destination: {
     name: ``,
@@ -14,14 +16,14 @@ const BLANK_TRIP_EVENT = {
   },
   timeStart: new Date(),
   timeFinish: new Date(),
-  options: ``,
-  isFavorite: false
+  options: [],
+  isFavorite: false,
+  isDisabled: false,
+  isSaving: false,
 };
 
-import "../../node_modules/flatpickr/dist/flatpickr.min.css";
-
 const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
-  const {type, price, timeStart, timeFinish, destination} = data;
+  const {type, price, timeStart, timeFinish, destination, options, isDisabled, isSaving} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -39,7 +41,8 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           type="radio"
           name="event-type"
           value="${eventType.toLowerCase()}"
-          ${isChecked(eventType)}>
+          ${isChecked(eventType)}
+          ${isDisabled ? `disabled` : ``}>
             <label class="event__type-label  event__type-label--${eventType.toLowerCase()}" for="event-type-${eventType.toLowerCase()}-2">${eventType}</label>
         </div>`;
     }
@@ -47,8 +50,16 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
     return eventTypesList;
   };
 
-  const createEventOptionsList = () => {
+  const createEventOptionsList = (editingEventOptions) => {
+    if (optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers.length === 0) {
+      return ``;
+    }
+
     let eventOptionsList = ``;
+
+    const isChecked = (currentEventOption) => {
+      return editingEventOptions.map((item) => item.title).find((item) => item === currentEventOption.title) ? `checked` : ``;
+    };
 
     for (const option of optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers) {
       eventOptionsList += `
@@ -56,7 +67,9 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           <input class="event__offer-checkbox  visually-hidden"
           id="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
-          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}">
+          name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}"
+          ${isChecked(option)}
+          ${isDisabled ? `disabled` : ``}>
           <label
           class="event__offer-label"
           for="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2">
@@ -66,6 +79,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           </label>
         </div>`;
     }
+
 
     return `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -125,7 +139,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-2" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-2" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -139,7 +153,14 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                     <label class="event__label  event__type-output" for="event-destination-2">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-2" type="text" name="event-destination" value="${he.encode(destination.name)}" list="destination-list-2">
+                    <input
+                    class="event__input  event__input--destination"
+                    id="event-destination-2"
+                    type="text"
+                    name="event-destination"
+                    value="${he.encode(destination.name)}"
+                    list="destination-list-2"
+                    ${isDisabled ? `disabled` : ``}>
                     <datalist id="destination-list-2">
                       ${createCitiesList()}
                     </datalist>
@@ -147,10 +168,22 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-2">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-2" type="text" name="event-start-time" value="${dateStart}">
+                    <input
+                    class="event__input  event__input--time"
+                    id="event-start-time-2"
+                    type="text"
+                    name="event-start-time"
+                    value="${dateStart}"
+                    ${isDisabled ? `disabled` : ``}>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-2">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-2" type="text" name="event-end-time" value="${dateFinish}">
+                    <input
+                    class="event__input  event__input--time"
+                    id="event-end-time-2"
+                    type="text"
+                    name="event-end-time"
+                    value="${dateFinish}"
+                    ${isDisabled ? `disabled` : ``}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -158,17 +191,24 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-2" type="text" name="event-price" value="${price}">
+                    <input
+                    class="event__input  event__input--price"
+                    id="event-price-2"
+                    type="text"
+                    name="event-price"
+                    ${isDisabled ? `disabled` : ``}
+                    value="${price}"
+                    >
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
+                  <button class="event__reset-btn" type="reset">Cancel</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
                 </header>
                 <section class="event__details">
-                    ${createEventOptionsList()}
+                    ${createEventOptionsList(options)}
 
                     ${createDestination()}
                   </section>
@@ -177,7 +217,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
             </li>`;
 };
 
-class NewEventCreatorView extends SmartView {
+export default class NewEventCreatorView extends SmartView {
   constructor(optionsList, destinationsList) {
     super();
     this._data = BLANK_TRIP_EVENT;
@@ -193,6 +233,7 @@ class NewEventCreatorView extends SmartView {
     this._priceChangeHandler = this._priceChangeHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
+    this._saveOptionsHandler = this._saveOptionsHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -217,6 +258,38 @@ class NewEventCreatorView extends SmartView {
     return createNewEventCreatorTemplate(this._data, this._optionsList, this._destinationsList);
   }
 
+  setRollUpHandler(callback) {
+    this._callback.rollUp = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
+  }
+
+  setSubmitFormHandler(callback) {
+    this._callback.submitForm = callback;
+    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setRollUpHandler(this._callback.rollUp);
+    this.setSubmitFormHandler(this._callback.submitForm);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
+  }
+
+  reset(tripEvent) {
+    this.updateData(
+        tripEvent
+    );
+  }
+
   _setInnerHandlers() {
     this.getElement()
       .querySelector(`.event__type-list`)
@@ -229,17 +302,10 @@ class NewEventCreatorView extends SmartView {
     this.getElement()
       .querySelector(`.event__input--price`)
       .addEventListener(`change`, this._priceChangeHandler);
-  }
 
-  restoreHandlers() {
-    this._setInnerHandlers();
-
-    this.setRollUpHandler(this._callback.rollUp);
-    this.setSubmitFormHandler(this._callback.submitForm);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-
-    this._setStartDatepicker();
-    this._setFinishDatepicker();
+    this.getElement()
+      .querySelector(`.event__details`)
+      .addEventListener(`change`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
@@ -259,20 +325,6 @@ class NewEventCreatorView extends SmartView {
           onChange: this._startDateChangeHandler
         }
     );
-  }
-
-  _startDateChangeHandler([userDate]) {
-    if (this._data.timeFinish < userDate) {
-      this.updateData({
-        timeStart: userDate,
-        timeFinish: userDate,
-      });
-      return;
-    }
-
-    this.updateData({
-      timeStart: userDate
-    });
   }
 
   _setFinishDatepicker() {
@@ -295,16 +347,24 @@ class NewEventCreatorView extends SmartView {
     );
   }
 
+  _startDateChangeHandler([userDate]) {
+    if (this._data.timeFinish < userDate) {
+      this.updateData({
+        timeStart: userDate,
+        timeFinish: userDate,
+      });
+      return;
+    }
+
+    this.updateData({
+      timeStart: userDate
+    });
+  }
+
   _finishDateChangeHandler([userDate]) {
     this.updateData({
       timeFinish: userDate
     });
-  }
-
-  reset(tripEvent) {
-    this.updateData(
-        tripEvent
-    );
   }
 
   _rollUpHandler(evt) {
@@ -312,20 +372,11 @@ class NewEventCreatorView extends SmartView {
     this._callback.rollUp();
   }
 
-  setRollUpHandler(callback) {
-    this._callback.rollUp = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollUpHandler);
-  }
-
   _submitFormHandler(evt) {
     evt.preventDefault();
     this._callback.submitForm(this._data);
   }
 
-  setSubmitFormHandler(callback) {
-    this._callback.submitForm = callback;
-    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._submitFormHandler);
-  }
 
   _eventTypeChangeHandler(evt) {
     evt.preventDefault();
@@ -345,7 +396,7 @@ class NewEventCreatorView extends SmartView {
   _priceChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      price: evt.target.value
+      price: parseInt(evt.target.value, 10)
     });
   }
 
@@ -354,11 +405,30 @@ class NewEventCreatorView extends SmartView {
     this._callback.deleteClick(this._data);
   }
 
-  setDeleteClickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  _saveOptionsHandler() {
+    const currentOptions = this.getElement().querySelectorAll(`.event__offer-checkbox:checked+label .event__offer-title`);
+
+    if (currentOptions.length === 0) {
+      this.updateData({
+        options: []
+      });
+      return;
+    }
+
+    let options = [];
+
+    for (const option of currentOptions) {
+      options.push(
+          this._optionsList
+          .find((item) => item.type === this._data.type)
+          .offers
+          .find((item) => option.textContent.includes(item.title))
+      );
+    }
+
+    this.updateData({
+      options
+    });
   }
 
 }
-
-export {NewEventCreatorView};

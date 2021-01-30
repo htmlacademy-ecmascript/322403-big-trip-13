@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract.js";
+import AbstractView from "./abstract.js";
 import {MenuItem} from "../const.js";
 
 const createSiteMenuTemplate = () => {
@@ -11,7 +11,7 @@ const createSiteMenuTemplate = () => {
           </div>`;
 };
 
-class SiteMenuView extends AbstractView {
+export default class SiteMenuView extends AbstractView {
   constructor() {
     super();
 
@@ -20,19 +20,6 @@ class SiteMenuView extends AbstractView {
 
   getTemplate() {
     return createSiteMenuTemplate();
-  }
-
-  _menuClickHandler(evt) {
-    evt.preventDefault();
-    if (evt.target.matches(`.trip-tabs__btn`)) {
-      this._callback.menuClick(evt.target.id);
-
-      this.getElement()
-        .querySelector(`.trip-tabs__btn--active`)
-        .classList.remove(`trip-tabs__btn--active`);
-
-      evt.target.classList.add(`trip-tabs__btn--active`);
-    }
   }
 
   setMenuClickHandler(callback) {
@@ -53,7 +40,17 @@ class SiteMenuView extends AbstractView {
 
     item.classList.add(`trip-tabs__btn--active`);
   }
+
+  _menuClickHandler(evt) {
+    evt.preventDefault();
+    if (evt.target.matches(`.trip-tabs__btn`)) {
+      this._callback.menuClick(evt.target.id);
+
+      this.getElement()
+        .querySelector(`.trip-tabs__btn--active`)
+        .classList.remove(`trip-tabs__btn--active`);
+
+      evt.target.classList.add(`trip-tabs__btn--active`);
+    }
+  }
 }
-
-
-export {SiteMenuView};

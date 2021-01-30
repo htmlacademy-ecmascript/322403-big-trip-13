@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {AbstractView} from "./abstract.js";
+import AbstractView from "./abstract.js";
 
 const createTripEventTemplate = (tripEvent) => {
   const {type, price, options, timeStart, timeFinish, isFavorite} = tripEvent;
@@ -7,13 +7,13 @@ const createTripEventTemplate = (tripEvent) => {
 
   const getFavoriteClassName = isFavorite ? `event__favorite-btn--active` : ``;
 
-  const getOptions = (optionsArray) => {
+  const getOptions = (optionsItems) => {
     let result = ``;
-    for (const optionsItem of optionsArray) {
+    for (const option of optionsItems) {
       result += `<li class="event__offer">
-        <span class="event__offer-title">${optionsItem.title}</span>
+        <span class="event__offer-title">${option.title}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${optionsItem.price}</span>
+        <span class="event__offer-price">${option.price}</span>
       </li>`;
     }
     return result;
@@ -95,7 +95,7 @@ const createTripEventTemplate = (tripEvent) => {
             </li>`;
 };
 
-class TripEventView extends AbstractView {
+export default class TripEventView extends AbstractView {
   constructor(tripEvent) {
     super();
     this._tripEvent = tripEvent;
@@ -107,16 +107,6 @@ class TripEventView extends AbstractView {
     return createTripEventTemplate(this._tripEvent);
   }
 
-  _rollDownHandler(evt) {
-    evt.preventDefault();
-    this._callback.rollDown();
-  }
-
-  _favoriteClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.favoriteClick();
-  }
-
   setRollDownHandler(callback) {
     this._callback.rollDown = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollDownHandler);
@@ -126,6 +116,14 @@ class TripEventView extends AbstractView {
     this._callback.favoriteClick = callback;
     this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
-}
 
-export {TripEventView};
+  _rollDownHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollDown();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+}

@@ -1,5 +1,5 @@
-import {EventEditorView} from "../view/event-editor.js";
-import {TripEventView} from "../view/trip-event.js";
+import EventEditorView from "../view/event-editor.js";
+import TripEventView from "../view/trip-event.js";
 import {UserAction, UpdateType} from "../const.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
 
@@ -8,7 +8,14 @@ const Mode = {
   EDITING: `EDITING`
 };
 
-class TripEventPresenter {
+const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
+
+export default class TripEventPresenter {
   constructor(tripEventsContainer, changeData, changeMode) {
     this._tripEventsContainer = tripEventsContainer;
     this._changeData = changeData;
@@ -53,7 +60,8 @@ class TripEventPresenter {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._eventEditorComponent, prevEventEditorComponent);
+      replace(this._tripEventComponent, prevEventEditorComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevTripEventComponent);
@@ -63,6 +71,35 @@ class TripEventPresenter {
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToCard();
+    }
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._eventEditorComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._eventEditorComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.DELETING:
+        this._eventEditorComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case State.ABORTING:
+        this._tripEventComponent.shake(resetFormState);
+        this._eventEditorComponent.shake(resetFormState);
+        break;
     }
   }
 
@@ -106,7 +143,6 @@ class TripEventPresenter {
         UserAction.UPDATE_TRIP_EVENT,
         UpdateType.MINOR,
         update);
-    this._replaceFormToCard();
   }
 
   _handleFavoriteClick() {
@@ -125,4 +161,4 @@ class TripEventPresenter {
   }
 }
 
-export {TripEventPresenter};
+export {State};

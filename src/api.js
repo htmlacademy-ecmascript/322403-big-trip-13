@@ -1,8 +1,10 @@
-import {TripEventsModel} from "./model/trip-events.js";
+import TripEventsModel from "./model/trip-events.js";
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
@@ -10,7 +12,7 @@ const SuccessHTTPStatusRange = {
   MAX: 299
 };
 
-class Api {
+export default class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
@@ -43,20 +45,22 @@ class Api {
       .then(TripEventsModel.adaptToClient);
   }
 
-  _load({
-    url,
-    method = Method.GET,
-    body = null,
-    headers = new Headers()
-  }) {
-    headers.append(`Authorization`, this._authorization);
+  addTripEvent(tripEvent) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(TripEventsModel.adaptToServer(tripEvent)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(this.toJSON)
+      .then(TripEventsModel.adaptToClient);
+  }
 
-    return fetch(
-        `${this._endPoint}/${url}`,
-        {method, body, headers}
-    )
-      .then(this.checkStatus)
-      .catch(this.catchError);
+  deleteTripEvent(tripEvent) {
+    return this._load({
+      url: `points/${tripEvent.id}`,
+      method: Method.DELETE
+    });
   }
 
   checkStatus(response) {
@@ -77,6 +81,20 @@ class Api {
   catchError(err) {
     throw err;
   }
-}
 
-export {Api};
+  _load({
+    url,
+    method = Method.GET,
+    body = null,
+    headers = new Headers()
+  }) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(
+        `${this._endPoint}/${url}`,
+        {method, body, headers}
+    )
+      .then(this.checkStatus)
+      .catch(this.catchError);
+  }
+}

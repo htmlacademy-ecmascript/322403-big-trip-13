@@ -15,7 +15,10 @@ const calculateRouteDetails = (tripEvents) => {
     return result;
   };
 
-  const getTotalPrice = () => tripEvents.reduce((sum, element) => sum + element.price, 0);
+  const getTotalPrice = () => {
+    return tripEvents.reduce(
+        (total, element) => total + element.price + element.options.reduce((sum, option) => sum + option.price, 0), 0);
+  };
 
   return {
     cities: getCities(),
