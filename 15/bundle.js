@@ -44491,8 +44491,8 @@ class EventEditorView extends _smart_js__WEBPACK_IMPORTED_MODULE_3__["default"] 
       .addEventListener(`change`, this._priceChangeHandler);
 
     this.getElement()
-      .querySelector(`.event--edit`)
-      .addEventListener(`submit`, this._saveOptionsHandler);
+      .querySelector(`.event__details`)
+      .addEventListener(`change`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
@@ -44794,7 +44794,7 @@ const BLANK_TRIP_EVENT = {
 };
 
 const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
-  const {type, price, timeStart, timeFinish, destination, isDisabled, isSaving} = data;
+  const {type, price, timeStart, timeFinish, destination, options, isDisabled, isSaving} = data;
 
   const createEventTypesList = (editingEventType) => {
     let eventTypesList = ``;
@@ -44821,12 +44821,16 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
     return eventTypesList;
   };
 
-  const createEventOptionsList = () => {
+  const createEventOptionsList = (editingEventOptions) => {
     if (optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers.length === 0) {
       return ``;
     }
 
     let eventOptionsList = ``;
+
+    const isChecked = (currentEventOption) => {
+      return editingEventOptions.map((item) => item.title).find((item) => item === currentEventOption.title) ? `checked` : ``;
+    };
 
     for (const option of optionsList.find((optionItem) => optionItem.type.toLowerCase() === type.toLowerCase()).offers) {
       eventOptionsList += `
@@ -44835,6 +44839,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           id="event-${option.title.toLowerCase().replaceAll(` `, `-`)}-2"
           type="checkbox"
           name="event-${option.title.toLowerCase().replaceAll(` `, `-`)}"
+          ${isChecked(option)}
           ${isDisabled ? `disabled` : ``}>
           <label
           class="event__offer-label"
@@ -44845,6 +44850,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
           </label>
         </div>`;
     }
+
 
     return `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -44973,7 +44979,7 @@ const createNewEventCreatorTemplate = (data, optionsList, destinationsList) => {
                   </button>
                 </header>
                 <section class="event__details">
-                    ${createEventOptionsList()}
+                    ${createEventOptionsList(options)}
 
                     ${createDestination()}
                   </section>
@@ -45069,8 +45075,8 @@ class NewEventCreatorView extends _smart_js__WEBPACK_IMPORTED_MODULE_3__["defaul
       .addEventListener(`change`, this._priceChangeHandler);
 
     this.getElement()
-      .querySelector(`.event--edit`)
-      .addEventListener(`submit`, this._saveOptionsHandler);
+      .querySelector(`.event__details`)
+      .addEventListener(`change`, this._saveOptionsHandler);
   }
 
   _setStartDatepicker() {
