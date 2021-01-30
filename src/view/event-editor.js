@@ -398,7 +398,7 @@ export default class EventEditorView extends SmartView {
       return;
     }
 
-    let options = [];
+    const options = [];
 
     for (const option of currentOptions) {
       options.push(

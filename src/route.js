@@ -4,7 +4,7 @@ const calculateRouteDetails = (tripEvents) => {
   }
 
   const getCities = () => {
-    let result = [];
+    const result = [];
 
     for (const tripEvent of tripEvents) {
       if (!result || result[tripEvents.length - 1] !== tripEvent.destination.name) {
