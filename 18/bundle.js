@@ -42938,7 +42938,7 @@ class Api {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Provider; });
-/* harmony import */ var _model_trip_events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/trip-events */ "./src/model/trip-events.js");
+/* harmony import */ var _model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/trip-events.js */ "./src/model/trip-events.js");
 /* harmony import */ var _utils_common_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/common.js */ "./src/utils/common.js");
 
 
@@ -42966,7 +42966,7 @@ class Provider {
     if (Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_1__["isOnline"])()) {
       return this._api.getTripEvents()
         .then((tripEvents) => {
-          const items = createStoreStructure(tripEvents.map(_model_trip_events__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer));
+          const items = createStoreStructure(tripEvents.map(_model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer));
           this._store.setTripEventItems(items);
           return tripEvents;
         });
@@ -42974,7 +42974,7 @@ class Provider {
 
     const storeTripEvents = Object.values(this._store.getTripEventItems());
 
-    return Promise.resolve(storeTripEvents.map(_model_trip_events__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToClient));
+    return Promise.resolve(storeTripEvents.map(_model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToClient));
   }
 
   getDestinations() {
@@ -43009,12 +43009,12 @@ class Provider {
     if (Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_1__["isOnline"])()) {
       return this._api.updateTripEvent(tripEvent)
         .then((updatedTripEvent) => {
-          this._store.setTripEventItem(updatedTripEvent.id, _model_trip_events__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(updatedTripEvent));
+          this._store.setTripEventItem(updatedTripEvent.id, _model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(updatedTripEvent));
           return updatedTripEvent;
         });
     }
 
-    this._store.setTripEventItem(tripEvent.id, _model_trip_events__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(Object.assign({}, tripEvent)));
+    this._store.setTripEventItem(tripEvent.id, _model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(Object.assign({}, tripEvent)));
 
     return Promise.resolve(tripEvent);
   }
@@ -43023,7 +43023,7 @@ class Provider {
     if (Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_1__["isOnline"])()) {
       return this._api.addTripEvent(tripEvent)
         .then((newTripEvent) => {
-          this._store.setTripEventItem(newTripEvent.id, _model_trip_events__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(newTripEvent));
+          this._store.setTripEventItem(newTripEvent.id, _model_trip_events_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToServer(newTripEvent));
           return newTripEvent;
         });
     }
