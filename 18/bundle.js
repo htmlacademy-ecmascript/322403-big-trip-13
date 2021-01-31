@@ -43259,7 +43259,7 @@ const apiWithProvider = new _api_provider_js__WEBPACK_IMPORTED_MODULE_8__["defau
 const tripEventsModel = new _model_trip_events_js__WEBPACK_IMPORTED_MODULE_3__["default"]();
 
 const filtersModel = new _model_filters_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
-const filterPresenter = new _presenter_filters_js__WEBPACK_IMPORTED_MODULE_5__["default"](tripControlsElement, filtersModel);
+const filterPresenter = new _presenter_filters_js__WEBPACK_IMPORTED_MODULE_5__["default"](tripControlsElement, filtersModel, tripEventsModel);
 
 Promise.all([
   apiWithProvider.getTripEvents(),
@@ -43536,15 +43536,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return FiltersPresenter; });
 /* harmony import */ var _view_filters_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../view/filters.js */ "./src/view/filters.js");
 /* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/render.js */ "./src/utils/render.js");
-/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+/* harmony import */ var _utils_filters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/filters.js */ "./src/utils/filters.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+
 
 
 
 
 class FiltersPresenter {
-  constructor(filterContainer, filterModel) {
+  constructor(filterContainer, filterModel, tripEventsModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
+    this._tripEventsModel = tripEventsModel;
     this._currentFilter = null;
 
     this._filterComponent = null;
@@ -43552,6 +43555,7 @@ class FiltersPresenter {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
 
+    this._tripEventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
   }
 
@@ -43574,18 +43578,23 @@ class FiltersPresenter {
   }
 
   _getFilters() {
+    const tripEvents = this._tripEventsModel.getTripEvents();
+
     return [
       {
-        type: _const_js__WEBPACK_IMPORTED_MODULE_2__["FilterType"].EVERYTHING,
+        type: _const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].EVERYTHING,
         name: `everything`,
+        available: Boolean(_utils_filters_js__WEBPACK_IMPORTED_MODULE_2__["filters"][_const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].EVERYTHING](tripEvents).length)
       },
       {
-        type: _const_js__WEBPACK_IMPORTED_MODULE_2__["FilterType"].FUTURE,
+        type: _const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].FUTURE,
         name: `future`,
+        available: Boolean(_utils_filters_js__WEBPACK_IMPORTED_MODULE_2__["filters"][_const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].FUTURE](tripEvents).length)
       },
       {
-        type: _const_js__WEBPACK_IMPORTED_MODULE_2__["FilterType"].PAST,
+        type: _const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].PAST,
         name: `past`,
+        available: Boolean(_utils_filters_js__WEBPACK_IMPORTED_MODULE_2__["filters"][_const_js__WEBPACK_IMPORTED_MODULE_3__["FilterType"].PAST](tripEvents).length)
       }
     ];
   }
@@ -43599,7 +43608,7 @@ class FiltersPresenter {
       return;
     }
 
-    this._filterModel.setFilter(_const_js__WEBPACK_IMPORTED_MODULE_2__["UpdateType"].MAJOR, filterType);
+    this._filterModel.setFilter(_const_js__WEBPACK_IMPORTED_MODULE_3__["UpdateType"].MAJOR, filterType);
   }
 }
 
@@ -45068,7 +45077,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const createFiltersTemplate = (filterItems, currentFilterType) => {
   const createFilterItemTemplate = (filter, currentFilter) => {
-    const {type, name} = filter;
+    const {type, name, available} = filter;
 
     return (
       `<div class="trip-filters__filter">
@@ -45078,7 +45087,8 @@ const createFiltersTemplate = (filterItems, currentFilterType) => {
                 type="radio"
                 name="trip-filter"
                 value="${name}"
-                ${type === currentFilter ? `checked` : ``}>
+                ${type === currentFilter ? `checked` : ``}
+                ${available ? `` : `disabled`}>
                 <label class="trip-filters__filter-label" for="filter-${name}">${name}</label>
               </div>`
     );
