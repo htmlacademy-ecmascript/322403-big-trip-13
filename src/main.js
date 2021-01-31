@@ -33,7 +33,7 @@ const apiWithProvider = new Provider(api, store);
 const tripEventsModel = new TripEventsModel();
 
 const filtersModel = new FiltersModel();
-const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel);
+const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel, tripEventsModel);
 
 Promise.all([
   apiWithProvider.getTripEvents(),

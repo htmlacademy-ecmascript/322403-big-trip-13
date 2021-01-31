@@ -1,11 +1,13 @@
 import FiltersView from "../view/filters.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
+import {filters} from "../utils/filters.js";
 import {FilterType, UpdateType} from "../const.js";
 
 export default class FiltersPresenter {
-  constructor(filterContainer, filterModel) {
+  constructor(filterContainer, filterModel, tripEventsModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
+    this._tripEventsModel = tripEventsModel;
     this._currentFilter = null;
 
     this._filterComponent = null;
@@ -13,6 +15,7 @@ export default class FiltersPresenter {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
 
+    this._tripEventsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
   }
 
@@ -35,18 +38,23 @@ export default class FiltersPresenter {
   }
 
   _getFilters() {
+    const tripEvents = this._tripEventsModel.getTripEvents();
+
     return [
       {
         type: FilterType.EVERYTHING,
         name: `everything`,
+        available: Boolean(filters[FilterType.EVERYTHING](tripEvents).length)
       },
       {
         type: FilterType.FUTURE,
         name: `future`,
+        available: Boolean(filters[FilterType.FUTURE](tripEvents).length)
       },
       {
         type: FilterType.PAST,
         name: `past`,
+        available: Boolean(filters[FilterType.PAST](tripEvents).length)
       }
     ];
   }
