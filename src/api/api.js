@@ -1,4 +1,4 @@
-import TripEventsModel from "./model/trip-events.js";
+import TripEventsModel from "../model/trip-events.js";
 
 const Method = {
   GET: `GET`,
@@ -62,6 +62,17 @@ export default class Api {
       method: Method.DELETE
     });
   }
+
+  sync(data) {
+    return this._load({
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(this.toJSON);
+  }
+
 
   checkStatus(response) {
     if (

@@ -1,5 +1,7 @@
 import EventEditorView from "../view/event-editor.js";
 import TripEventView from "../view/trip-event.js";
+import {toast} from "../utils/toast/toast.js";
+import {isOnline} from "../utils/common.js";
 import {UserAction, UpdateType} from "../const.js";
 import {renderElement, RenderPosition, replace, remove} from "../utils/render.js";
 
@@ -130,6 +132,11 @@ export default class TripEventPresenter {
   }
 
   _handleRollDown() {
+    if (!isOnline()) {
+      toast(`You can't edit event offline`);
+      return;
+    }
+
     this._replaceCardToForm();
   }
 
@@ -139,6 +146,11 @@ export default class TripEventPresenter {
   }
 
   _handleSubmitForm(update) {
+    if (!isOnline()) {
+      toast(`You can't save event offline`);
+      return;
+    }
+
     this._changeData(
         UserAction.UPDATE_TRIP_EVENT,
         UpdateType.MINOR,
@@ -153,6 +165,11 @@ export default class TripEventPresenter {
   }
 
   _handleDeleteClick(tripEvent) {
+    if (!isOnline()) {
+      toast(`You can't delete event offline`);
+      return;
+    }
+
     this._changeData(
         UserAction.DELETE_TRIP_EVENT,
         UpdateType.MINOR,
