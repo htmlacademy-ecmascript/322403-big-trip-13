@@ -4,13 +4,22 @@ import TripPresenter from "./presenter/trip.js";
 import TripEventsModel from "./model/trip-events.js";
 import FiltersModel from "./model/filters.js";
 import FiltersPresenter from "./presenter/filters.js";
-import Api from "./api.js";
+import Api from "./api/api.js";
+import Store from "./api/store.js";
+import Provider from "./api/provider.js";
+import {isOnline} from "./utils/common.js";
+import {toast} from "./utils/toast/toast.js";
 import {RenderPosition, renderElement, remove} from "./utils/render.js";
 import {FilterType, MenuItem, UpdateType} from "./const.js";
 
 
 const AUTHORIZATION = `Basic 3NuPhit3IOpHoEC`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+const STORE_PREFIX = `big-trip-localstorage`;
+const STORE_VER = `v13`;
+const STORE_TRIP_EVENTS_NAME = `${STORE_PREFIX}-${STORE_VER}-trip-events`;
+const STORE_OPTIONS_NAME = `${STORE_PREFIX}-${STORE_VER}-options`;
+const STORE_DESTINATIONS_NAME = `${STORE_PREFIX}-${STORE_VER}-destinations`;
 
 const tripMainElement = document.querySelector(`.trip-main`);
 const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
@@ -19,15 +28,17 @@ const tripsEventsElement = document.querySelector(`.trip-events`);
 const siteMenuComponent = new SiteMenuView();
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const store = new Store(STORE_TRIP_EVENTS_NAME, STORE_OPTIONS_NAME, STORE_DESTINATIONS_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 const tripEventsModel = new TripEventsModel();
 
 const filtersModel = new FiltersModel();
-const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel);
+const filterPresenter = new FiltersPresenter(tripControlsElement, filtersModel, tripEventsModel);
 
 Promise.all([
-  api.getTripEvents(),
-  api.getDestinations(),
-  api.getOptions()
+  apiWithProvider.getTripEvents(),
+  apiWithProvider.getDestinations(),
+  apiWithProvider.getOptions()
 ]).then(([tripEvents, destinations, options]) => {
   tripEventsModel.setDestinationsList(destinations);
   tripEventsModel.setOptionsList(options);
@@ -47,7 +58,7 @@ Promise.all([
 
 let statisticsComponent = null;
 
-const tripPresenter = new TripPresenter(tripsEventsElement, tripMainElement, tripEventsModel, filtersModel, api);
+const tripPresenter = new TripPresenter(tripsEventsElement, tripMainElement, tripEventsModel, filtersModel, apiWithProvider);
 tripPresenter.init();
 
 const handleSiteMenuClick = (menuItem) => {
@@ -75,6 +86,12 @@ const newEventButtonElement = document.querySelector(`.trip-main__event-add-btn`
 
 newEventButtonElement.addEventListener(`click`, (evt) => {
   evt.preventDefault();
+  if (!isOnline()) {
+    toast(`You can't create new event offline`);
+    siteMenuComponent.setMenuItem(MenuItem.TABLE);
+    return;
+  }
+
   if (statisticsComponent !== null) {
     remove(statisticsComponent);
     tripPresenter.deleteTripEventsList();
@@ -85,3 +102,17 @@ newEventButtonElement.addEventListener(`click`, (evt) => {
   siteMenuComponent.setMenuItem(MenuItem.TABLE);
   tripPresenter.createTripEvent(newEventButtonElement);
 });
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`);
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
+
