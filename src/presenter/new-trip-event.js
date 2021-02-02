@@ -1,6 +1,8 @@
 import NewEventCreatorView from "../view/new-event-creator.js";
 import {remove, renderElement, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
+import {isOnline} from "../utils/common.js";
+import {toast} from "../utils/toast/toast.js";
 
 export default class NewTripEventPresenter {
   constructor(changeData) {
@@ -66,6 +68,11 @@ export default class NewTripEventPresenter {
 
 
   _handleFormSubmit(tripEvent) {
+    if (!isOnline()) {
+      this._newTripEventComponent.shake(() => toast(`You can't create event offline`));
+      return;
+    }
+
     this._changeData(
         UserAction.ADD_TRIP_EVENT,
         UpdateType.MINOR,

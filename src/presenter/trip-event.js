@@ -147,7 +147,7 @@ export default class TripEventPresenter {
 
   _handleSubmitForm(update) {
     if (!isOnline()) {
-      toast(`You can't save event offline`);
+      this._eventEditorComponent.shake(() => toast(`You can't save event offline`));
       return;
     }
 
@@ -166,7 +166,7 @@ export default class TripEventPresenter {
 
   _handleDeleteClick(tripEvent) {
     if (!isOnline()) {
-      toast(`You can't delete event offline`);
+      this._eventEditorComponent.shake(() =>toast(`You can't delete event offline`));
       return;
     }
 
